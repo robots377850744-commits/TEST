@@ -85,7 +85,7 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
     /* 玻璃擬態容器 (依 4 大原則：僅用於導覽、重點面板、彈窗) */
@@ -99,7 +99,7 @@
     }
 
     /* ==========================================================================
-       [CSS-02] 頁首與導覽列 (Top Header & Live/History Navigation)
+       [CSS-02] 頁首導覽與即時串流控制列 (Header Bar, Live Switcher & User Auth)
        ========================================================================== */
     .header-bar {
       padding: 10px 18px;
@@ -129,7 +129,6 @@
       color: #67e8f9;
     }
 
-    /* Live vs History 分頁切換鈕 */
     .view-switcher {
       display: inline-flex;
       background: rgba(15, 23, 42, 0.9);
@@ -172,13 +171,13 @@
       background: rgba(15, 23, 42, 0.85);
       border: 1px solid #334155;
       border-radius: 10px;
-      padding: 6px 14px;
+      padding: 5px 14px;
     }
 
     .header-actions-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
@@ -186,11 +185,22 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 3px 9px;
+      padding: 4px 10px;
       border-radius: 6px;
       font-size: 11px;
       font-weight: 700;
       font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .pill-badge:hover {
+      filter: brightness(1.2);
+      transform: translateY(-1px);
+    }
+
+    .pill-badge.active-filter {
+      box-shadow: 0 0 0 2px #ffffff, 0 0 12px rgba(255, 255, 255, 0.4);
     }
 
     .pill-badge.green {
@@ -211,8 +221,72 @@
       border: 1px solid var(--status-red-border);
     }
 
+    .user-auth-btn {
+      cursor: pointer;
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .user-auth-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: #38bdf8;
+      color: #ffffff;
+    }
+
     /* ==========================================================================
-       [CSS-03] 上半部：站別總覽看板 (By Station Summary Grid - 結構 B)
+       [CSS-03] 即時重大告警跑馬廣播條 (Critical Alert Ticker)
+       ========================================================================== */
+    .alert-ticker-bar {
+      padding: 7px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .alert-ticker-bar.danger {
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+    }
+
+    .alert-ticker-bar.normal {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+
+    .ticker-locate-btn {
+      cursor: pointer;
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid #ef4444;
+      color: #ffffff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .ticker-locate-btn:hover {
+      background: #ef4444;
+    }
+
+    /* ==========================================================================
+       [CSS-04] 上半部：站別總覽看板 (By Station Summary Grid & 7D Trend Button)
        ========================================================================== */
     .section-title-row {
       display: flex;
@@ -247,28 +321,21 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
-    /* 站點卡片選取狀態 (Selected Station) */
     .station-card.active-station {
       border-color: #38bdf8;
       box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35), 0 8px 20px rgba(2, 132, 199, 0.25);
       background: #19233c;
     }
 
-    /* 站點三色燈 (規則 B：異常優先告警) */
-    .station-card[data-status="green"] {
-      border-top: 4px solid var(--status-green);
-    }
-    .station-card[data-status="orange"] {
-      border-top: 4px solid var(--status-orange);
-    }
-    .station-card[data-status="red"] {
-      border-top: 4px solid var(--status-red);
-    }
+    .station-card[data-status="green"]  { border-top: 4px solid var(--status-green); }
+    .station-card[data-status="orange"] { border-top: 4px solid var(--status-orange); }
+    .station-card[data-status="red"]    { border-top: 4px solid var(--status-red); }
 
     .station-card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 6px;
     }
 
     .station-name {
@@ -276,6 +343,28 @@
       font-weight: 800;
       color: #ffffff;
       letter-spacing: 0.02em;
+    }
+
+    .btn-trend-7d {
+      cursor: pointer;
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      background: rgba(6, 182, 212, 0.15);
+      color: #67e8f9;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-trend-7d:hover {
+      background: rgba(6, 182, 212, 0.35);
+      color: #ffffff;
+      border-color: #38bdf8;
+      transform: translateY(-1px);
     }
 
     .station-stats-row {
@@ -293,7 +382,7 @@
     }
 
     /* ==========================================================================
-       [CSS-04] 中間操作工具列 (+Add / 儲存變更 / 刪除)
+       [CSS-05] 中間操作工具列 (+Add / 儲存變更 / TV 輪播 / 穿透篩選警報)
        ========================================================================== */
     .toolbar-bar {
       padding: 10px 16px;
@@ -368,8 +457,30 @@
       color: #ffffff;
     }
 
+    /* 戰情輪播標籤狀態 */
+    .btn-carousel.active {
+      background: rgba(6, 182, 212, 0.22);
+      border-color: #06b6d4;
+      color: #67e8f9;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+    }
+
+    /* 穿透篩選模式橫幅 */
+    .filter-mode-banner {
+      width: 100%;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #e0f2fe;
+    }
+
     /* ==========================================================================
-       [CSS-05] 下半部：機台詳細資訊卡 (By Machine ID Cards Grid)
+       [CSS-06] 下半部：機台詳細資訊卡 (By Machine ID Cards Grid)
        ========================================================================== */
     .machine-cards-grid {
       display: grid;
@@ -377,7 +488,6 @@
       gap: 14px;
     }
 
-    /* 機台卡片（高對比實心底板，支援拖曳） */
     .machine-card {
       background: var(--bg-card-solid);
       border: 1px solid var(--border-subtle);
@@ -409,6 +519,15 @@
     .machine-card.drag-over {
       border-color: #38bdf8;
       box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+    }
+
+    .machine-card.highlight-target {
+      animation: pulseTarget 1.2s infinite alternate;
+    }
+
+    @keyframes pulseTarget {
+      from { box-shadow: 0 0 0 2px #ef4444, 0 0 16px rgba(239, 68, 68, 0.6); }
+      to   { box-shadow: 0 0 0 4px #ef4444, 0 0 26px rgba(239, 68, 68, 0.9); }
     }
 
     .machine-card-header {
@@ -444,7 +563,6 @@
       border: 1px solid #334155;
     }
 
-    /* 四率進度條 (Setup / Run / IDLE / Down) */
     .four-rates-container {
       display: flex;
       flex-direction: column;
@@ -486,7 +604,7 @@
       margin-top: 1px;
     }
 
-    /* Alarm Top 3 與 Repair Top 3 雙欄並排 (防破版、高質感工控 UI) */
+    /* 雙欄並排：防破版與晶片化標籤 */
     .dual-log-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -546,7 +664,6 @@
       font-weight: 600;
     }
 
-    /* 單據與告警高對比標籤晶片 */
     .repair-code-tag {
       font-size: 9px;
       font-weight: 800;
@@ -640,7 +757,101 @@
     }
 
     /* ==========================================================================
-       [CSS-06] History 24H 自由時間滑桿與歷史視圖 (History 24H Slider View)
+       [CSS-07] 站點前 7 日圖表分析彈窗 (Station 7D Trend Chart Modal)
+       ========================================================================== */
+    .trend-modal-box {
+      width: 100%;
+      max-width: 960px;
+      background: #0f172a;
+      border: 1.5px solid #38bdf8;
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .trend-charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 820px) {
+      .trend-charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      background: #111c34;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chart-card-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .svg-chart-container {
+      width: 100%;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kpi-stat-chip {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 6px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .kpi-stat-chip-label {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .kpi-stat-chip-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: #67e8f9;
+    }
+
+    /* ==========================================================================
+       [CSS-08] 人員登入與權限管理 Modal (User Authentication Modal)
+       ========================================================================== */
+    .auth-modal-box {
+      width: 100%;
+      max-width: 460px;
+      background: #111827;
+      border: 1.5px solid #38bdf8;
+      border-radius: 12px;
+      padding: 22px 26px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* ==========================================================================
+       [CSS-09] History 24H 與 通用 Modal (History View & Common Modals)
        ========================================================================== */
     .history-slider-panel {
       padding: 16px 20px;
@@ -666,9 +877,6 @@
       font-size: 12px;
     }
 
-    /* ==========================================================================
-       [CSS-07] EQP Data 匯入與新增機台驗證 Modal
-       ========================================================================== */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -729,7 +937,7 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      z-index: 110;
+      z-index: 120;
       background: #0f172a;
       border: 1px solid #38bdf8;
       padding: 10px 18px;
@@ -747,7 +955,7 @@
 <body>
 
   <!-- ==========================================================================
-       [HTML-01] 頁首導覽與控制列 (Header Bar & Navigation)
+       [HTML-01] 頁首導覽與即時串流控制列 (Header Bar & Top Controls)
        ========================================================================== -->
   <div class="app-container">
 
@@ -764,8 +972,8 @@
           <div style="font-size:11px; color:var(--text-muted);">Station Summary &amp; Equipment Four-Rate Monitor</div>
         </div>
 
-        <!-- 獨立 Live 與 History 分頁切換鈕 -->
-        <div class="view-switcher" style="margin-left: 12px;">
+        <!-- Live vs History 分頁切換鈕 -->
+        <div class="view-switcher" style="margin-left: 8px;">
           <button id="navLiveBtn" type="button" class="view-tab-btn active">
             <span>🟢 Live 即時場景</span>
           </button>
@@ -775,58 +983,91 @@
         </div>
       </div>
 
-      <!-- 中間：即時時間跳動 -->
+      <!-- 中間：即時時間跳動 + 即時串流頻率切換 -->
       <div class="clock-display-box">
         <svg width="18" height="18" style="color:var(--accent-cyan);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         <div>
           <div style="font-size:10px; color:var(--accent-cyan); font-weight:700;">年/月/日 現在時間</div>
-          <div id="liveClockDisplay" class="font-mono-tech" style="font-size:15px; font-weight:800;">2026/10/17 16:35:00</div>
+          <div id="liveClockDisplay" class="font-mono-tech" style="font-size:14px; font-weight:800;">2026/10/17 18:45:00</div>
+        </div>
+
+        <!-- 即時串流模擬心跳控制器 (Live Heartbeat Controller) -->
+        <div style="display:flex; align-items:center; gap:6px; margin-left:8px; padding-left:10px; border-left:1px solid #334155;">
+          <span id="streamStatusIndicator" style="width:7px; height:7px; border-radius:999px; background:#10b981;"></span>
+          <span style="font-size:10px; color:var(--text-muted);">串流:</span>
+          <select id="streamIntervalSelect" class="form-select font-mono-tech" style="padding:1px 4px; font-size:11px; border:none; background:transparent;">
+            <option value="3">3秒即時</option>
+            <option value="5">5秒輪巡</option>
+            <option value="0">暫停更新</option>
+          </select>
         </div>
       </div>
 
-      <!-- 右側：廠別選擇、全廠燈號統計與高對比開關 -->
+      <!-- 右側：全廠穿透篩選燈號、廠別選擇、人員登入與高對比開關 -->
       <div class="header-actions-group">
-        <!-- 全廠統計標籤 -->
-        <div style="display:flex; align-items:center; gap:6px;">
-          <span class="pill-badge green" title="正常運行機台數">● 正常 <b id="statGreenCount" class="font-mono-tech">12</b></span>
-          <span class="pill-badge orange" title="警告/待機機台數">● 警告 <b id="statOrangeCount" class="font-mono-tech">2</b></span>
-          <span class="pill-badge red" title="異常停機機台數">● 異常 <b id="statRedCount" class="font-mono-tech">2</b></span>
-          <span class="font-mono-tech" style="font-size:12px; color:var(--text-muted); margin-left:4px;">
+        <!-- 全廠統計標籤（支援點擊穿透篩選機台！） -->
+        <div style="display:flex; align-items:center; gap:5px;" title="點擊燈號可直接【反向穿透篩選】全廠對應狀態機台">
+          <span id="filterAllBtn" class="pill-badge" style="background:#1e293b; color:#cbd5e1; border:1px solid #475569;">全部</span>
+          <span id="filterGreenBtn" class="pill-badge green">● 正常 <b id="statGreenCount" class="font-mono-tech">12</b></span>
+          <span id="filterOrangeBtn" class="pill-badge orange">● 警告 <b id="statOrangeCount" class="font-mono-tech">2</b></span>
+          <span id="filterRedBtn" class="pill-badge red">● 異常 <b id="statRedCount" class="font-mono-tech">2</b></span>
+          <span class="font-mono-tech" style="font-size:12px; color:var(--text-muted); margin-left:2px;">
             全廠 OEE: <b id="statTotalOee" style="color:#67e8f9;">88.2%</b>
           </span>
         </div>
 
         <!-- 廠別選擇 (61-6F Fab) -->
-        <div style="display:flex; align-items:center; gap:6px; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:4px 10px;">
+        <div style="display:flex; align-items:center; gap:4px; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:3px 8px;">
           <span style="font-size:11px; color:var(--text-muted);">廠別:</span>
-          <select id="fabSelect" class="form-select" style="padding:2px 4px; font-size:13px; font-weight:700; border:none; background:transparent;">
+          <select id="fabSelect" class="form-select" style="padding:2px 4px; font-size:12px; font-weight:700; border:none; background:transparent;">
             <option value="61-6F Fab">61-6F Fab</option>
             <option value="61-5F Fab">61-5F Fab</option>
             <option value="62-3F Fab">62-3F Fab</option>
           </select>
         </div>
 
+        <!-- 人員登入與權限按鈕 (User Auth Chip) -->
+        <button id="openAuthModalBtn" type="button" class="user-auth-btn" title="切換或登入人員帳號，管理操作權限 (預留後端 API 架構)">
+          <span id="userAuthIcon">👤</span>
+          <span id="userAuthText">人員登入</span>
+        </button>
+
         <!-- 無障礙 / 高對比開關 -->
-        <button id="toggleContrastBtn" type="button" class="btn-action" title="切換高對比純色模式 (降低透明度與模糊干擾)">
+        <button id="toggleContrastBtn" type="button" class="btn-action" style="padding:5px 10px;" title="切換高對比純色模式 (降低透明度與模糊干擾)">
           <span>🌓 高對比</span>
         </button>
       </div>
     </header>
 
     <!-- ==========================================================================
-         [HTML-02] LIVE 即時場景主視圖 (Live Scene View)
+         [HTML-02] 即時重大異常跑馬廣播條 (Critical Alert Ticker)
+         ========================================================================== -->
+    <div id="alertTickerBar" class="alert-ticker-bar normal">
+      <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+        <span id="alertTickerIcon">✔</span>
+        <span id="alertTickerText" class="font-mono-tech" style="font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          全廠產線運作正常，目前無未結案之重大停機告警
+        </span>
+      </div>
+      <div id="alertTickerActionBox" class="hidden">
+        <button id="alertTickerLocateBtn" type="button" class="ticker-locate-btn">立即定位異常機台 ➔</button>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         [HTML-03] LIVE 即時場景主視圖 (Live Scene View)
          ========================================================================== -->
     <main id="liveViewSection" class="flex flex-col gap-3.5">
 
-      <!-- 上半部：By 站點總覽看板 (結構 B - 顯示平均 OEE + 總 Output + 規則 B 異常燈號) -->
+      <!-- 上半部：By 站點總覽看板 (含 📈 7D 趨勢按鈕與規則 B 異常燈號) -->
       <section class="glass-surface" style="padding: 14px;">
         <div class="section-title-row">
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="width:8px; height:8px; border-radius:999px; background:var(--accent-cyan);"></span>
             <span style="font-size:13px; font-weight:800; color:var(--accent-cyan); letter-spacing:0.04em;">
-              各站別總覽監控看板 (點擊站別方塊切換下半部機台明細)
+              各站別總覽監控看板 (點擊方塊切換下半部；點右上角「📈 7D 趨勢」開啟圖表分析)
             </span>
           </div>
           <span style="font-size:11px; color:var(--text-muted);">
@@ -840,16 +1081,22 @@
         </div>
       </section>
 
-      <!-- 中間操作工具列 (+Add 新增機台 / 儲存變更至 localStorage / 刪除說明) -->
+      <!-- 中間操作工具列 (+Add 新增機台 / 儲存變更至 localStorage / TV 輪播 / 穿透提示) -->
       <section class="toolbar-bar glass-surface">
-        <div style="display:flex; align-items:center; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
           <span style="font-size:13px; font-weight:800; color:#ffffff;">
-            目前檢視站別：<span id="activeStationTitle" style="color:#38bdf8;">Grinding</span>
+            目前檢視：<span id="activeStationTitle" style="color:#38bdf8;">Grinding</span>
           </span>
           <span id="activeStationCountBadge" class="font-mono-tech" style="font-size:11px; padding:2px 8px; border-radius:5px; background:#0f172a; color:#cbd5e1; border:1px solid #334155;">
             共 3 台機台
           </span>
-          <span style="font-size:11px; color:var(--text-muted); margin-left:6px;">
+
+          <!-- 電視牆自動輪播按鈕 (Kiosk Carousel Toggle) -->
+          <button id="toggleCarouselBtn" type="button" class="btn-action btn-carousel" title="開啟/關閉大螢幕無人值守自動輪播 (每10秒依序巡檢各站點，遇異常自動鎖定)">
+            <span>📺 戰情輪播: <b id="carouselStatusText">OFF</b></span>
+          </button>
+
+          <span style="font-size:11px; color:var(--text-muted); margin-left:4px;">
             💡 提示：可<b style="color:#ffffff;">直接用滑鼠拖曳卡片</b>調整站內順序，調整後請點擊「儲存變更」
           </span>
         </div>
@@ -876,6 +1123,15 @@
             <span>🔄 恢復預設</span>
           </button>
         </div>
+
+        <!-- 穿透篩選模式提示條 (當點擊頁首紅/橙/綠標籤時顯示) -->
+        <div id="filterModeBanner" class="filter-mode-banner hidden">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span>🔍</span>
+            <span id="filterModeDescText">目前啟用【全廠異常機台穿透模式】</span>
+          </div>
+          <button id="clearFilterModeBtn" type="button" class="btn-action" style="padding:2px 8px; font-size:11px;">✕ 返回單站檢視模式</button>
+        </div>
       </section>
 
       <!-- 下半部：單一機台詳細卡片區 (By Machine ID - 四率 / Output / Alarm / Repair Top 3) -->
@@ -887,7 +1143,7 @@
     </main>
 
     <!-- ==========================================================================
-         [HTML-03] HISTORY 24H 自由時間軸視圖 (History View with Free Time Slider)
+         [HTML-04] HISTORY 24H 自由時間軸視圖 (History View with Free Time Slider)
          ========================================================================== -->
     <main id="historyViewSection" class="hidden flex flex-col gap-3.5">
       <section class="glass-surface history-slider-panel">
@@ -950,7 +1206,166 @@
     </main>
 
     <!-- ==========================================================================
-         [HTML-04] EQP Data (SQLite DB) 接口與新增機台比對 Modal
+         [HTML-05] 站點前 7 日作業趨勢分析 Modal (Station 7D Trend Chart Modal)
+         ========================================================================== -->
+    <div id="stationTrendModal" class="modal-overlay hidden">
+      <div class="trend-modal-box">
+        <!-- 彈窗頂部：站點標題、產線 KPI 與 Day/Shift 粒度切換鈕 -->
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #334155; padding-bottom:12px; flex-wrap:wrap; gap:10px;">
+          <div>
+            <div style="font-size:17px; font-weight:800; color:#ffffff; display:flex; align-items:center; gap:8px;">
+              <span>📈</span>
+              <span id="trendModalStationName">Grinding 站點</span>
+              <span style="font-size:12px; color:#38bdf8; font-weight:normal;">前 7 日作業生產趨勢 Chart 分析</span>
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:3px;">
+              即時統計該站點 OEE 綜合稼動率、Output 產量、Alarm 告警次數與 Repair 開單進度
+            </div>
+          </div>
+
+          <!-- Day vs Shift 粒度切換鈕 (支援班別維度！) -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="view-switcher" style="background:#0b1120;">
+              <button id="trendGrainDayBtn" type="button" class="view-tab-btn active" style="padding:4px 10px; font-size:11px;">
+                <span>📅 依日顯示 (7 Days)</span>
+              </button>
+              <button id="trendGrainShiftBtn" type="button" class="view-tab-btn" style="padding:4px 10px; font-size:11px;">
+                <span>⏱️ 依班別顯示 (14 Shifts: 早/夜班)</span>
+              </button>
+            </div>
+            <button id="closeTrendModalBtn" type="button" class="btn-action" style="padding:4px 9px;">✕</button>
+          </div>
+        </div>
+
+        <!-- 關鍵 KPI 摘要卡片列 -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px;">
+          <div class="kpi-stat-chip">
+            <span class="kpi-stat-chip-label">7 日平均 OEE</span>
+            <span id="trendKpiAvgOee" class="kpi-stat-chip-val font-mono-tech">86.4%</span>
+          </div>
+          <div class="kpi-stat-chip">
+            <span class="kpi-stat-chip-label">7 日累計 Output</span>
+            <span id="trendKpiTotalOutput" class="kpi-stat-chip-val font-mono-tech">284,500 <span style="font-size:10px; color:var(--text-muted);">pcs</span></span>
+          </div>
+          <div class="kpi-stat-chip">
+            <span class="kpi-stat-chip-label">平均 MTBF (故障間隔)</span>
+            <span id="trendKpiMtbf" class="kpi-stat-chip-val font-mono-tech" style="color:#6ee7b7;">142 <span style="font-size:10px; color:var(--text-muted);">hrs</span></span>
+          </div>
+          <div class="kpi-stat-chip">
+            <span class="kpi-stat-chip-label">單據結案率</span>
+            <span id="trendKpiRepairRate" class="kpi-stat-chip-val font-mono-tech" style="color:#fdba74;">87.5%</span>
+          </div>
+        </div>
+
+        <!-- 4 組原生 SVG 工業圖表 (零網路依賴、保證不白畫面) -->
+        <div class="trend-charts-grid">
+          <!-- 圖表 1：OEE 綜合稼動率趨勢 (折線圖 + 85% 標竿線) -->
+          <div class="chart-card">
+            <div class="chart-card-title">
+              <span>📊 OEE 稼動率趨勢 (%)</span>
+              <span class="font-mono-tech" style="font-size:10px; color:#fcd34d;">--- 85% Target 達標線</span>
+            </div>
+            <div id="oeeChartContainer" class="svg-chart-container">
+              <!-- 由 JS 原生 SVG 繪製 -->
+            </div>
+          </div>
+
+          <!-- 圖表 2：Output 產出量趨勢 (早/晚班堆疊或柱狀圖) -->
+          <div class="chart-card">
+            <div class="chart-card-title">
+              <span>📦 Output 產能趨勢 (pcs)</span>
+              <span id="outputLegendHint" class="font-mono-tech" style="font-size:10px; color:var(--text-muted);">日總量</span>
+            </div>
+            <div id="outputChartContainer" class="svg-chart-container">
+              <!-- 由 JS 原生 SVG 繪製 -->
+            </div>
+          </div>
+
+          <!-- 圖表 3：Alarm Top 3 觸發次數分佈 (橫條圖) -->
+          <div class="chart-card">
+            <div class="chart-card-title">
+              <span>⚠️ 7 日 Alarm 累計觸發排行</span>
+              <span class="font-mono-tech" style="font-size:10px; color:#fca5a5;">次數排行</span>
+            </div>
+            <div id="alarmChartContainer" class="svg-chart-container" style="align-items:stretch; justify-content:center; flex-direction:column; gap:8px; padding:4px 0;">
+              <!-- 由 JS 渲染橫向長條 -->
+            </div>
+          </div>
+
+          <!-- 圖表 4：Repair 單據開立與結案進度 (橫條圖) -->
+          <div class="chart-card">
+            <div class="chart-card-title">
+              <span>🛠️ 7 日 Repair 維修工單統計</span>
+              <span class="font-mono-tech" style="font-size:10px; color:#67e8f9;">A01~A05 單據</span>
+            </div>
+            <div id="repairChartContainer" class="svg-chart-container" style="align-items:stretch; justify-content:center; flex-direction:column; gap:8px; padding:4px 0;">
+              <!-- 由 JS 渲染維修進度 -->
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; border-top:1px solid #334155; padding-top:10px;">
+          <button id="closeTrendModalBtn2" type="button" class="btn-action">關閉分析視窗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         [HTML-06] 人員登入與權限管理 Modal (預留後端 API 規格)
+         ========================================================================== -->
+    <div id="userAuthModal" class="modal-overlay hidden">
+      <div class="auth-modal-box">
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #334155; padding-bottom:10px;">
+          <div style="font-size:15px; font-weight:800; color:#ffffff; display:flex; align-items:center; gap:8px;">
+            <span>🛡️</span>
+            <span>人員身分驗證與權限管理</span>
+          </div>
+          <button id="closeAuthModalBtn" type="button" class="btn-action" style="padding:2px 8px;">✕</button>
+        </div>
+
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.4;">
+          目前內建人員權限架構。預留標準 <code class="font-mono-tech" style="color:#67e8f9;">POST /api/auth/login</code> 端點與 JWT Token 機制，可辨識作業員、製程工程師與廠長之操作權限。
+        </div>
+
+        <!-- 登入表單 -->
+        <div class="form-group">
+          <label style="color:#cbd5e1; font-weight:600;">人員工號 (Employee ID):</label>
+          <input id="authEmpIdInput" type="text" value="83921" class="form-input font-mono-tech" placeholder="例如: 83921" />
+        </div>
+
+        <div class="form-group">
+          <label style="color:#cbd5e1; font-weight:600;">密碼 (Password):</label>
+          <input id="authPasswordInput" type="password" value="fabPass123" class="form-input font-mono-tech" />
+        </div>
+
+        <div class="form-group">
+          <label style="color:#cbd5e1; font-weight:600;">選擇模擬權限角色 (Role):</label>
+          <select id="authRoleSelect" class="form-select font-mono-tech">
+            <option value="engineer" selected>製程工程師 (Process Engineer) - 完整控制/拖曳排序/新增刪除</option>
+            <option value="operator">作業員 (Operator) - 唯讀監控模式 (禁止增刪機台)</option>
+            <option value="manager">廠務主管 (Fab Manager) - 全廠最高管理者權限</option>
+          </select>
+        </div>
+
+        <!-- 後端 API 對接說明提示 -->
+        <div style="background:#090e1a; border:1px dashed #334155; border-radius:6px; padding:8px 10px; font-size:11px; color:#94a3b8;">
+          <div style="color:#38bdf8; font-weight:700; margin-bottom:2px;">🔌 後端伺服器對接規格預留:</div>
+          <div>Header: <code class="font-mono-tech" style="color:#fcd34d;">Authorization: Bearer &lt;JWT_TOKEN&gt;</code></div>
+          <div>權限驗證由後端 RBAC 判斷，前端自動依照 Role 啟用對應 UI 按鈕。</div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid #334155; padding-top:12px;">
+          <button id="authLogoutBtn" type="button" class="btn-action" style="color:#fca5a5; border-color:rgba(239,68,68,0.4);">登出目前帳號</button>
+          <div style="display:flex; gap:8px;">
+            <button id="cancelAuthBtn" type="button" class="btn-action">取消</button>
+            <button id="confirmLoginBtn" type="button" class="btn-primary-add">確認登入 / 切換身分</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         [HTML-07] EQP Data (SQLite DB) 接口與新增機台比對 Modal
          ========================================================================== -->
     <div id="addMachineModal" class="modal-overlay hidden">
       <div class="modal-box">
@@ -962,12 +1377,10 @@
           <button id="closeAddModalBtn" type="button" class="btn-action" style="padding:2px 8px;">✕</button>
         </div>
 
-        <!-- 說明提示 -->
         <div style="font-size:12px; color:var(--text-muted); line-height:1.4;">
           系統將自動檢查機台是否存在於目前廠別（<b id="modalCurrentFabText" style="color:#ffffff;">61-6F Fab</b>）的 EQP Data 中。若 DB 中無此機台資訊則無法新增。
         </div>
 
-        <!-- 選擇站別 -->
         <div class="form-group">
           <label style="color:#cbd5e1; font-weight:600;">目標機台站別 (Station):</label>
           <select id="modalStationSelect" class="form-select">
@@ -981,7 +1394,6 @@
           </select>
         </div>
 
-        <!-- 下拉選單：自 EQP Data 篩選尚未加入的機台 -->
         <div class="form-group">
           <label style="color:#cbd5e1; font-weight:600;">自 EQP Data 主檔選取待加入機台:</label>
           <select id="modalCandidateSelect" class="form-select font-mono-tech">
@@ -989,7 +1401,6 @@
           </select>
         </div>
 
-        <!-- 手動輸入 Machine ID 驗證 -->
         <div class="form-group">
           <label style="color:#cbd5e1; font-weight:600;">或手動輸入 Machine ID 比對:</label>
           <input id="modalManualInput" type="text" placeholder="例如: B8_6334_04 或輸入任意代碼比對" class="form-input font-mono-tech" />
@@ -1004,7 +1415,7 @@
     </div>
 
     <!-- ==========================================================================
-         [HTML-05] 載入 SQLite DB 檔資訊彈窗 (SQLite DB Master Inspector)
+         [HTML-08] 載入 SQLite DB 檔資訊彈窗 (SQLite DB Master Inspector)
          ========================================================================== -->
     <div id="dbInspectorModal" class="modal-overlay hidden">
       <div class="modal-box" style="max-width: 640px;">
@@ -1060,15 +1471,12 @@
   </div>
 
   <!-- ==========================================================================
-       [JS-01] 全域狀態與標準 EQP Data 主檔結構 (Data Models & Global State)
+       [JS-01] 全域狀態 (State)、標準 EQP Data 主檔與 7 日趨勢種子數據
        ========================================================================== -->
   <script>
     (function () {
-      // 預設支援的所有廠別與站別
       const ALL_STATIONS = ['Grinding', 'Saw', 'Taping', 'Marking', 'Dieplace', 'Molding', 'Debond'];
 
-      // 標準 EQP Data 主檔庫 (SQLite 表映射結構)
-      // 包含作業廠別、機台站別、Machine ID、資產編號
       const DEFAULT_EQP_DATABASE = [
         // 61-6F Fab - Grinding
         { fab: '61-6F Fab', station: 'Grinding', machine_id: 'B8_6334_01', asset_no: 'EQP-AST-633401' },
@@ -1114,7 +1522,6 @@
         { fab: '61-5F Fab', station: 'Taping', machine_id: 'B5_5122_01', asset_no: 'EQP-AST-512201' }
       ];
 
-      // 告警庫與單據庫
       const ALARM_SAMPLES = {
         Grinding: ['E104 Spindle Load High', 'W208 Cool Water Flow Low', 'E112 Chuck Vacuum Drop', 'W215 Wheel Wear Limit'],
         Saw: ['E301 Blade Break Sensor', 'W309 Kerf Check Offset', 'E315 Vision Align Timeout', 'W322 DI Water Resistivity'],
@@ -1133,9 +1540,7 @@
         { code: 'A05', desc: '純水管路阻抗校正檢修單', status: '已結案' }
       ];
 
-      // 生成機台動態四率與指標初始資料
       function generateMachineMetrics(mId, station, index) {
-        // 預設讓少數機台為紅燈/橙燈以展現「規則 B 異常優先告警」
         let status = 'green';
         let setupRate = 3.5;
         let runRate = 88.5;
@@ -1162,7 +1567,7 @@
           runRate = +(100 - setupRate - idleRate - downRate).toFixed(1);
         }
 
-        const oee = runRate; // OEE 與 Run rate 緊密連動
+        const oee = runRate;
         const output = Math.round(14000 * (oee / 88));
 
         const alarmsPool = ALARM_SAMPLES[station] || ALARM_SAMPLES.Grinding;
@@ -1191,16 +1596,15 @@
         };
       }
 
-      // 產生初始看板機台清單 (過濾目前廠別 61-6F Fab)
       function createInitialMonitoredList() {
         const initialCodes = [
-          'B8_6334_01', 'B8_6334_02', 'B8_6335_01', // Grinding
-          'B8_6330_01', 'B8_6335_03', 'B8_6337_01', // Saw
-          'B8_6336_01', 'B8_6336_02', 'B8_6337_02', // Taping
-          'B8_6338_02', 'B8_6339_01', 'B8_6339_02', // Marking
-          'B8_6341_01', 'B8_6341_02',               // Dieplace
-          'B8_6342_01',                              // Molding
-          'B8_6343_01'                               // Debond
+          'B8_6334_01', 'B8_6334_02', 'B8_6335_01',
+          'B8_6330_01', 'B8_6335_03', 'B8_6337_01',
+          'B8_6336_01', 'B8_6336_02', 'B8_6337_02',
+          'B8_6338_02', 'B8_6339_01', 'B8_6339_02',
+          'B8_6341_01', 'B8_6341_02',
+          'B8_6342_01',
+          'B8_6343_01'
         ];
 
         return DEFAULT_EQP_DATABASE
@@ -1211,18 +1615,14 @@
           }));
       }
 
-      // LocalStorage Key
       const STORAGE_KEY = 'FAB_WAR_ROOM_CONFIG_V3';
 
-      // 讀取 LocalStorage 或使用預設
       function loadPersistedMonitoredList() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
           if (raw) {
             const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              return parsed;
-            }
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
           }
         } catch (e) {
           console.warn('無法自 localStorage 讀取機台設定，採用預設值', e);
@@ -1232,16 +1632,40 @@
 
       // 全域應用程式狀態 (State)
       let state = {
-        currentView: 'live', // 'live' 或 'history'
+        currentView: 'live',
         selectedFab: '61-6F Fab',
         activeStation: 'Grinding',
-        historyMinutes: 950, // 15:50 (15*60 + 50 = 950)
+        historyMinutes: 950,
         eqpDatabase: [...DEFAULT_EQP_DATABASE],
-        monitoredMachines: loadPersistedMonitoredList()
+        monitoredMachines: loadPersistedMonitoredList(),
+
+        // 挑戰 4 新增：全廠穿透篩選 ('all', 'red', 'orange', 'green')
+        globalStatusFilter: 'all',
+
+        // 挑戰 4 新增：TV 戰情輪播狀態
+        isCarouselActive: false,
+        carouselTimer: null,
+        carouselIntervalSec: 10,
+
+        // 挑戰 2 新增：7 日趨勢 Modal 當前選擇站點與粒度 ('day' 或 'shift')
+        trendModalStation: 'Grinding',
+        trendGrainMode: 'day',
+
+        // 挑戰 3 新增：人員登入與權限狀態 (JWT 假想架構)
+        currentUser: {
+          isLoggedIn: true,
+          empId: '83921',
+          role: 'engineer', // 'operator', 'engineer', 'manager'
+          token: 'mock-jwt-token-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
+        },
+
+        // 即時心跳串流秒數
+        streamInterval: 3,
+        streamTimer: null
       };
 
       // ==========================================================================
-      // [JS-02] DOM 元素引用與初始化 (DOM References)
+      // [JS-02] DOM 元素引用 (DOM References)
       // ==========================================================================
       const navLiveBtn = document.getElementById('navLiveBtn');
       const navHistoryBtn = document.getElementById('navHistoryBtn');
@@ -1256,20 +1680,58 @@
       const statRedCount = document.getElementById('statRedCount');
       const statTotalOee = document.getElementById('statTotalOee');
 
+      const filterAllBtn = document.getElementById('filterAllBtn');
+      const filterGreenBtn = document.getElementById('filterGreenBtn');
+      const filterOrangeBtn = document.getElementById('filterOrangeBtn');
+      const filterRedBtn = document.getElementById('filterRedBtn');
+
       const stationSummaryGrid = document.getElementById('stationSummaryGrid');
       const activeStationTitle = document.getElementById('activeStationTitle');
       const activeStationCountBadge = document.getElementById('activeStationCountBadge');
       const machineCardsContainer = document.getElementById('machineCardsContainer');
 
-      const historyStationGrid = document.getElementById('historyStationGrid');
-      const historyMachineCardsContainer = document.getElementById('historyMachineCardsContainer');
-      const historyTimeSlider = document.getElementById('historyTimeSlider');
-      const historyTimeInput = document.getElementById('historyTimeInput');
-      const applyTimeInputBtn = document.getElementById('applyTimeInputBtn');
-      const sliderIndicatorText = document.getElementById('sliderIndicatorText');
-      const historySnapshotTimeLabel = document.getElementById('historySnapshotTimeLabel');
+      const filterModeBanner = document.getElementById('filterModeBanner');
+      const filterModeDescText = document.getElementById('filterModeDescText');
+      const clearFilterModeBtn = document.getElementById('clearFilterModeBtn');
+      const toggleCarouselBtn = document.getElementById('toggleCarouselBtn');
+      const carouselStatusText = document.getElementById('carouselStatusText');
 
-      // Modal 元素
+      const alertTickerBar = document.getElementById('alertTickerBar');
+      const alertTickerIcon = document.getElementById('alertTickerIcon');
+      const alertTickerText = document.getElementById('alertTickerText');
+      const alertTickerActionBox = document.getElementById('alertTickerActionBox');
+      const alertTickerLocateBtn = document.getElementById('alertTickerLocateBtn');
+
+      // 7D Trend Modal 元素
+      const stationTrendModal = document.getElementById('stationTrendModal');
+      const trendModalStationName = document.getElementById('trendModalStationName');
+      const trendGrainDayBtn = document.getElementById('trendGrainDayBtn');
+      const trendGrainShiftBtn = document.getElementById('trendGrainShiftBtn');
+      const closeTrendModalBtn = document.getElementById('closeTrendModalBtn');
+      const closeTrendModalBtn2 = document.getElementById('closeTrendModalBtn2');
+      const trendKpiAvgOee = document.getElementById('trendKpiAvgOee');
+      const trendKpiTotalOutput = document.getElementById('trendKpiTotalOutput');
+      const trendKpiMtbf = document.getElementById('trendKpiMtbf');
+      const trendKpiRepairRate = document.getElementById('trendKpiRepairRate');
+      const oeeChartContainer = document.getElementById('oeeChartContainer');
+      const outputChartContainer = document.getElementById('outputChartContainer');
+      const alarmChartContainer = document.getElementById('alarmChartContainer');
+      const repairChartContainer = document.getElementById('repairChartContainer');
+      const outputLegendHint = document.getElementById('outputLegendHint');
+
+      // Auth Modal 元素
+      const openAuthModalBtn = document.getElementById('openAuthModalBtn');
+      const userAuthIcon = document.getElementById('userAuthIcon');
+      const userAuthText = document.getElementById('userAuthText');
+      const userAuthModal = document.getElementById('userAuthModal');
+      const closeAuthModalBtn = document.getElementById('closeAuthModalBtn');
+      const cancelAuthBtn = document.getElementById('cancelAuthBtn');
+      const confirmLoginBtn = document.getElementById('confirmLoginBtn');
+      const authLogoutBtn = document.getElementById('authLogoutBtn');
+      const authEmpIdInput = document.getElementById('authEmpIdInput');
+      const authRoleSelect = document.getElementById('authRoleSelect');
+
+      // EQP / DB Modal 元素
       const addMachineModal = document.getElementById('addMachineModal');
       const openAddMachineBtn = document.getElementById('openAddMachineBtn');
       const closeAddModalBtn = document.getElementById('closeAddModalBtn');
@@ -1293,7 +1755,18 @@
       const toastPopup = document.getElementById('toastPopup');
       const toastMsgText = document.getElementById('toastMsgText');
 
-      // Toast 顯示器
+      // History 視圖元素
+      const historyStationGrid = document.getElementById('historyStationGrid');
+      const historyMachineCardsContainer = document.getElementById('historyMachineCardsContainer');
+      const historyTimeSlider = document.getElementById('historyTimeSlider');
+      const historyTimeInput = document.getElementById('historyTimeInput');
+      const applyTimeInputBtn = document.getElementById('applyTimeInputBtn');
+      const sliderIndicatorText = document.getElementById('sliderIndicatorText');
+      const historySnapshotTimeLabel = document.getElementById('historySnapshotTimeLabel');
+
+      const streamIntervalSelect = document.getElementById('streamIntervalSelect');
+      const streamStatusIndicator = document.getElementById('streamStatusIndicator');
+
       let toastTimer = null;
       function showToast(msg) {
         toastMsgText.textContent = msg;
@@ -1305,7 +1778,7 @@
       }
 
       // ==========================================================================
-      // [JS-03] 時鐘與全廠三色燈統計 (Live Clock & Total Stats)
+      // [JS-03] 時鐘跳動、即時動態 Heartbeat 引擎與廣播條連動
       // ==========================================================================
       function updateLiveClock() {
         const now = new Date();
@@ -1320,6 +1793,137 @@
       setInterval(updateLiveClock, 1000);
       updateLiveClock();
 
+      // 即時微幅生產波動心跳 (原地就地更新數值，不整棵重建 DOM，避免閃爍與事件脫落)
+      function updateLiveDomValues() {
+        // 1. 就地更新上方站點方塊數值
+        const currentFabMachines = state.monitoredMachines.filter(m => m.fab === state.selectedFab);
+        ALL_STATIONS.forEach(st => {
+          const list = currentFabMachines.filter(m => m.station === st);
+          const count = list.length;
+          if (count > 0) {
+            let sumOee = 0, sumOut = 0;
+            list.forEach(item => {
+              sumOee += Number(item.oee);
+              sumOut += Number(item.output);
+            });
+            const avgOee = (sumOee / count).toFixed(1);
+            const cardEl = document.querySelector(`.station-card[data-station="${st}"]`);
+            if (cardEl) {
+              const oeeEl = cardEl.querySelector('.station-stats-val');
+              if (oeeEl) {
+                oeeEl.textContent = `${avgOee}%`;
+                oeeEl.style.color = Number(avgOee) >= 85 ? '#6ee7b7' : Number(avgOee) >= 70 ? '#fdba74' : '#fca5a5';
+              }
+              const outEl = cardEl.querySelector('.station-stats-row:last-child .font-mono-tech');
+              if (outEl) {
+                outEl.innerHTML = `${sumOut.toLocaleString()} <span style="font-size:10px; color:var(--text-muted);">pcs</span>`;
+              }
+            }
+          }
+        });
+
+        // 2. 就地更新下方機台卡片數值 (OEE & Output)
+        document.querySelectorAll('.machine-card').forEach(cardEl => {
+          const mId = cardEl.dataset.machineId;
+          const machine = state.monitoredMachines.find(m => m.machine_id === mId && m.fab === state.selectedFab);
+          if (machine) {
+            const oeeValEl = cardEl.querySelector('.font-mono-tech[style*="font-size:18px"]');
+            if (oeeValEl) oeeValEl.textContent = `${Number(machine.oee).toFixed(1)}%`;
+            const outValEl = cardEl.querySelector('.font-mono-tech[style*="Output:"]');
+            if (outValEl) outValEl.innerHTML = `Output: ${Number(machine.output).toLocaleString()} <span style="font-size:10px; color:var(--text-muted);">pcs</span>`;
+          }
+        });
+      }
+
+      function liveStreamPulse() {
+        if (state.currentView !== 'live' || state.streamInterval === 0) return;
+        const fabMachines = state.monitoredMachines.filter(m => m.fab === state.selectedFab);
+        fabMachines.forEach(m => {
+          if (m.status === 'green') {
+            m.output += Math.floor(Math.random() * 3) + 1;
+            const delta = (Math.random() - 0.48) * 0.2;
+            m.runRate = Math.min(99.0, Math.max(80.0, +(m.runRate + delta).toFixed(1)));
+            m.oee = m.runRate;
+          }
+        });
+        updateOverallStats();
+        updateLiveDomValues();
+        updateCriticalAlertTicker();
+      }
+
+      function setupStreamTimer() {
+        if (state.streamTimer) clearInterval(state.streamTimer);
+        if (state.streamInterval > 0) {
+          state.streamTimer = setInterval(liveStreamPulse, state.streamInterval * 1000);
+          streamStatusIndicator.style.background = '#10b981';
+        } else {
+          streamStatusIndicator.style.background = '#94a3b8';
+        }
+      }
+
+      streamIntervalSelect.addEventListener('change', (e) => {
+        state.streamInterval = parseInt(e.target.value, 10);
+        setupStreamTimer();
+        showToast(state.streamInterval > 0 ? `即時串流頻率切換為 ${state.streamInterval} 秒` : '已暫停即時串流更新');
+      });
+      setupStreamTimer();
+
+      // 更新頁首重大異常跑馬廣播條
+      let currentAnomalyTarget = null;
+      function updateCriticalAlertTicker() {
+        const fabMachines = state.monitoredMachines.filter(m => m.fab === state.selectedFab);
+        const redMachines = fabMachines.filter(m => m.status === 'red');
+
+        if (redMachines.length > 0) {
+          const firstRed = redMachines[0];
+          currentAnomalyTarget = firstRed;
+          alertTickerBar.className = 'alert-ticker-bar danger';
+          alertTickerIcon.textContent = '🚨';
+          alertTickerText.innerHTML = `【即時重大異常】<b style="color:#ffffff;">${firstRed.station}</b> 站點機台 <b style="color:#fcd34d;">${firstRed.machine_id}</b> 處於 Down 停機狀態！${firstRed.alarmTop3[0]}，${firstRed.repairTop3[0]}`;
+          alertTickerActionBox.classList.remove('hidden');
+
+          // 若正在進行自動輪播，遇異常自動暫停並鎖定該站點！
+          if (state.isCarouselActive) {
+            stopCarousel();
+            state.activeStation = firstRed.station;
+            activeStationTitle.textContent = firstRed.station;
+            renderStationSummaryCards();
+            renderMachineCards();
+            showToast(`⚠️ 偵測到 ${firstRed.station} 站點紅燈異常，已自動暫停輪播並鎖定告警站點！`);
+          }
+        } else {
+          currentAnomalyTarget = null;
+          alertTickerBar.className = 'alert-ticker-bar normal';
+          alertTickerIcon.textContent = '✔';
+          alertTickerText.textContent = '全廠產線運作正常，目前無未結案之重大停機告警 (全廠 OEE 達標)';
+          alertTickerActionBox.classList.add('hidden');
+        }
+      }
+
+      alertTickerLocateBtn.addEventListener('click', () => {
+        if (!currentAnomalyTarget) return;
+        state.activeStation = currentAnomalyTarget.station;
+        state.globalStatusFilter = 'all';
+        activeStationTitle.textContent = currentAnomalyTarget.station;
+        filterModeBanner.classList.add('hidden');
+        renderStationSummaryCards();
+        renderMachineCards();
+
+        // 滾動並高亮該機台
+        setTimeout(() => {
+          const targetCard = document.querySelector(`.machine-card[data-machine-id="${currentAnomalyTarget.machine_id}"]`);
+          if (targetCard) {
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetCard.classList.add('highlight-target');
+            setTimeout(() => targetCard.classList.remove('highlight-target'), 3500);
+          }
+        }, 150);
+        showToast(`已直接定位至 ${currentAnomalyTarget.station} 站點之異常機台 ${currentAnomalyTarget.machine_id}`);
+      });
+
+      // ==========================================================================
+      // [JS-04] 全廠三色燈統計與「反向穿透篩選」邏輯
+      // ==========================================================================
       function updateOverallStats() {
         let green = 0, orange = 0, red = 0, sumOee = 0;
         const currentFabMachines = state.monitoredMachines.filter(m => m.fab === state.selectedFab);
@@ -1336,10 +1940,36 @@
         statOrangeCount.textContent = orange;
         statRedCount.textContent = red;
         statTotalOee.textContent = `${avg}%`;
+
+        // 刷新篩選按鈕的外框選中樣式
+        [filterAllBtn, filterGreenBtn, filterOrangeBtn, filterRedBtn].forEach(btn => btn.classList.remove('active-filter'));
+        if (state.globalStatusFilter === 'red') filterRedBtn.classList.add('active-filter');
+        else if (state.globalStatusFilter === 'orange') filterOrangeBtn.classList.add('active-filter');
+        else if (state.globalStatusFilter === 'green') filterGreenBtn.classList.add('active-filter');
+        else filterAllBtn.classList.add('active-filter');
       }
 
+      function setGlobalStatusFilter(targetStatus) {
+        state.globalStatusFilter = targetStatus;
+        if (targetStatus === 'all') {
+          filterModeBanner.classList.add('hidden');
+        } else {
+          const labelMap = { red: '🔴 異常 (Down)', orange: '🟠 警告 (IDLE)', green: '🟢 正常 (Run)' };
+          filterModeDescText.innerHTML = `已啟用【全廠 ${labelMap[targetStatus]} 機台反向穿透篩選模式】（跨站點列出所有符合機台）`;
+          filterModeBanner.classList.remove('hidden');
+        }
+        updateOverallStats();
+        renderMachineCards();
+      }
+
+      filterAllBtn.addEventListener('click', () => setGlobalStatusFilter('all'));
+      filterGreenBtn.addEventListener('click', () => setGlobalStatusFilter('green'));
+      filterOrangeBtn.addEventListener('click', () => setGlobalStatusFilter('orange'));
+      filterRedBtn.addEventListener('click', () => setGlobalStatusFilter('red'));
+      clearFilterModeBtn.addEventListener('click', () => setGlobalStatusFilter('all'));
+
       // ==========================================================================
-      // [JS-04] 上半部：By 站點總覽看板渲染 (結構 B - 規則 B 異常優先三色燈)
+      // [JS-05] 上半部：站點總覽卡片渲染 (含 📈 7D 趨勢按鈕事件)
       // ==========================================================================
       function renderStationSummaryCards() {
         stationSummaryGrid.innerHTML = '';
@@ -1351,7 +1981,7 @@
 
           let avgOee = '0.0';
           let totalOutput = 0;
-          let stationStatus = 'green'; // 預設
+          let stationStatus = 'green';
 
           if (count > 0) {
             let oeeTotal = 0;
@@ -1367,30 +1997,34 @@
 
             avgOee = (oeeTotal / count).toFixed(1);
 
-            // 站點三色燈：規則 B (異常優先告警)
-            // 只要站內任一台紅燈 -> 站點亮紅燈；有橙燈無紅燈 -> 橙燈；全正常 -> 綠燈
             if (hasRed) stationStatus = 'red';
             else if (hasOrange) stationStatus = 'orange';
             else stationStatus = 'green';
           }
 
           const card = document.createElement('div');
-          card.className = `station-card ${state.activeStation === st ? 'active-station' : ''}`;
+          card.className = `station-card ${state.activeStation === st && state.globalStatusFilter === 'all' ? 'active-station' : ''}`;
           card.dataset.station = st;
           card.dataset.status = stationStatus;
 
           const statusBadge =
             stationStatus === 'red'
-              ? '<span class="pill-badge red">異常告警</span>'
+              ? '<span class="pill-badge red" style="cursor:default;">異常告警</span>'
               : stationStatus === 'orange'
-              ? '<span class="pill-badge orange">待機警告</span>'
-              : '<span class="pill-badge green">極為正常</span>';
+              ? '<span class="pill-badge orange" style="cursor:default;">待機警告</span>'
+              : '<span class="pill-badge green" style="cursor:default;">極為正常</span>';
 
           card.innerHTML = `
             <div>
               <div class="station-card-header">
                 <span class="station-name">${st}</span>
-                ${statusBadge}
+                <div style="display:flex; align-items:center; gap:6px;">
+                  ${statusBadge}
+                  <!-- 挑戰 1 決議：獨立 7D 趨勢按鈕，不阻斷站點切換 -->
+                  <button type="button" class="btn-trend-7d" data-station="${st}" title="點擊檢視 ${st} 站點前 7 日 OEE、Output、Alarm、Repair 趨勢圖表">
+                    <span>📈 7D 趨勢</span>
+                  </button>
+                </div>
               </div>
               <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
                 站內機台：<b style="color:#ffffff;">${count}</b> 台監控中
@@ -1412,11 +2046,22 @@
             </div>
           `;
 
-          card.addEventListener('click', () => {
+          // 點擊卡片本體：切換下半部站點機台
+          card.addEventListener('click', (e) => {
+            if (e.target.closest('.btn-trend-7d')) return; // 點擊趨勢鈕不切換
             state.activeStation = st;
+            state.globalStatusFilter = 'all';
             activeStationTitle.textContent = st;
+            filterModeBanner.classList.add('hidden');
             renderStationSummaryCards();
             renderMachineCards();
+          });
+
+          // 點擊 7D 趨勢按鈕：獨立彈出趨勢圖表 Modal
+          const trendBtn = card.querySelector('.btn-trend-7d');
+          trendBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openStationTrendModal(st);
           });
 
           stationSummaryGrid.appendChild(card);
@@ -1424,9 +2069,374 @@
       }
 
       // ==========================================================================
-      // [JS-05] 下半部：單一機台卡片渲染 (Drag & Drop、四率、Alarm/Repair Top 3)
+      // [JS-06] 站點前 7 日 SVG 工業圖表產生引擎 (Day vs Shift 班別粒度切換)
       // ==========================================================================
-      // 格式化 Repair 單據項目 (工控單據 A01, A02... 獨立晶片與狀態標籤，防文字溢出破版)
+      function generate7DayStationData(stationName) {
+        // 生成確定性 7 日與 14 班別（早班/夜班）之生產數據種子
+        const days = ['10/11', '10/12', '10/13', '10/14', '10/15', '10/16', '10/17'];
+        const stationIdx = ALL_STATIONS.indexOf(stationName) + 1;
+
+        const dayData = days.map((d, i) => {
+          const seed = (stationIdx * 17 + i * 19) % 29;
+          const oee = +(83.0 + (seed % 11) - (i === 4 ? 6.5 : 0)).toFixed(1);
+          const output = Math.round(38000 + (seed * 850) + (i * 1200));
+          return { label: d, oee: Math.min(96.5, Math.max(72.0, oee)), output };
+        });
+
+        // 14 個班別 (早班 Day Shift: 08:00~20:00 / 夜班 Night Shift: 20:00~08:00)
+        const shiftData = [];
+        days.forEach((d, i) => {
+          const dayOee = dayData[i].oee;
+          const dayOut = dayData[i].output;
+          // 早班通常產能稍高，夜班有交接微幅偏低
+          const dayShiftOee = +(dayOee + 1.2).toFixed(1);
+          const nightShiftOee = +(dayOee - 1.5).toFixed(1);
+          const dayShiftOut = Math.round(dayOut * 0.53);
+          const nightShiftOut = dayOut - dayShiftOut;
+
+          shiftData.push({ label: `${d} 早`, shift: '早班', oee: dayShiftOee, output: dayShiftOut });
+          shiftData.push({ label: `${d} 夜`, shift: '夜班', oee: nightShiftOee, output: nightShiftOut });
+        });
+
+        const alarmsPool = ALARM_SAMPLES[stationName] || ALARM_SAMPLES.Grinding;
+        const alarmCounts = [
+          { name: alarmsPool[0], count: 18 + (stationIdx * 3) % 9, percent: 45 },
+          { name: alarmsPool[1], count: 12 + (stationIdx * 2) % 6, percent: 30 },
+          { name: alarmsPool[2] || 'Vacuum Sensor Check', count: 7 + stationIdx % 4, percent: 18 },
+          { name: '其他零星微警報', count: 3, percent: 7 }
+        ];
+
+        const repairStats = [
+          { code: 'A01', desc: '刀具磨耗校正更換', total: 6, resolved: 6, status: '已結案' },
+          { code: 'A02', desc: '主軸軸承偏擺校驗', total: 4, resolved: 3, status: '作業中' },
+          { code: 'A03', desc: '吸盤真空迴路點檢', total: 5, resolved: 5, status: '已結案' },
+          { code: 'A04', desc: '雷射鏡片清潔單', total: 3, resolved: 2, status: '已派工' }
+        ];
+
+        return { dayData, shiftData, alarmCounts, repairStats };
+      }
+
+      function renderSvgLineChart(dataset, isShift) {
+        const w = 440, h = 160;
+        const padX = 35, padY = 25;
+        const chartW = w - padX - 15;
+        const chartH = h - padY - 25;
+
+        const count = dataset.length;
+        const minY = 60, maxY = 100;
+
+        // 計算折線點座標
+        const points = dataset.map((d, i) => {
+          const x = padX + (i / (count - 1)) * chartW;
+          const y = padY + chartH - ((d.oee - minY) / (maxY - minY)) * chartH;
+          return { x, y, ...d };
+        });
+
+        const pointsStr = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+        const targetY = padY + chartH - ((85 - minY) / (maxY - minY)) * chartH;
+
+        // 漸層填充路徑
+        const areaPath = `M ${points[0].x.toFixed(1)},${padY + chartH} L ${pointsStr} L ${points[points.length-1].x.toFixed(1)},${padY + chartH} Z`;
+
+        let svgHtml = `
+          <svg viewBox="0 0 ${w} ${h}" style="width:100%; height:100%; overflow:visible;">
+            <defs>
+              <linearGradient id="oeeGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.38"/>
+                <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+
+            <!-- 橫向網格線與 Y 軸標籤 -->
+            <line x1="${padX}" y1="${padY}" x2="${w-15}" y2="${padY}" stroke="#27354f" stroke-dasharray="3,3"/>
+            <text x="${padX-6}" y="${padY+4}" fill="#94a3b8" font-size="9" text-anchor="end" class="font-mono-tech">100%</text>
+
+            <line x1="${padX}" y1="${targetY}" x2="${w-15}" y2="${targetY}" stroke="#fcd34d" stroke-width="1.2" stroke-dasharray="4,4"/>
+            <text x="${w-10}" y="${targetY-3}" fill="#fcd34d" font-size="8" text-anchor="end" class="font-mono-tech">Target 85%</text>
+
+            <line x1="${padX}" y1="${padY+chartH/2}" x2="${w-15}" y2="${padY+chartH/2}" stroke="#27354f" stroke-dasharray="3,3"/>
+            <text x="${padX-6}" y="${padY+chartH/2+4}" fill="#94a3b8" font-size="9" text-anchor="end" class="font-mono-tech">80%</text>
+
+            <line x1="${padX}" y1="${padY+chartH}" x2="${w-15}" y2="${padY+chartH}" stroke="#334155"/>
+            <text x="${padX-6}" y="${padY+chartH+4}" fill="#94a3b8" font-size="9" text-anchor="end" class="font-mono-tech">60%</text>
+
+            <!-- 漸層填色與折線 -->
+            <path d="${areaPath}" fill="url(#oeeGradient)" />
+            <polyline fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="${pointsStr}" />
+        `;
+
+        // 數據圓點與 X 軸文字
+        points.forEach((p, idx) => {
+          // 班別模式文字隔點顯示或縮減，防擠壓
+          const showLabel = !isShift || (idx % 2 === 0);
+          svgHtml += `
+            <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#0f172a" stroke="#38bdf8" stroke-width="2">
+              <title>${p.label}: OEE ${p.oee}%</title>
+            </circle>
+          `;
+          if (showLabel) {
+            svgHtml += `
+              <text x="${p.x.toFixed(1)}" y="${padY + chartH + 16}" fill="#94a3b8" font-size="${isShift ? '8' : '9'}" text-anchor="middle" class="font-mono-tech">${p.label}</text>
+            `;
+          }
+        });
+
+        svgHtml += `</svg>`;
+        return svgHtml;
+      }
+
+      function renderSvgBarChart(dataset, isShift) {
+        const w = 440, h = 160;
+        const padX = 45, padY = 20;
+        const chartW = w - padX - 15;
+        const chartH = h - padY - 25;
+
+        const maxOut = isShift ? 35000 : 65000;
+        const count = dataset.length;
+        const barWidth = Math.max(8, (chartW / count) * 0.65);
+
+        let svgHtml = `
+          <svg viewBox="0 0 ${w} ${h}" style="width:100%; height:100%; overflow:visible;">
+            <line x1="${padX}" y1="${padY}" x2="${w-15}" y2="${padY}" stroke="#27354f" stroke-dasharray="3,3"/>
+            <text x="${padX-6}" y="${padY+4}" fill="#94a3b8" font-size="8" text-anchor="end" class="font-mono-tech">${(maxOut/1000).toFixed(0)}k</text>
+
+            <line x1="${padX}" y1="${padY+chartH/2}" x2="${w-15}" y2="${padY+chartH/2}" stroke="#27354f" stroke-dasharray="3,3"/>
+            <text x="${padX-6}" y="${padY+chartH/2+4}" fill="#94a3b8" font-size="8" text-anchor="end" class="font-mono-tech">${(maxOut/2000).toFixed(0)}k</text>
+
+            <line x1="${padX}" y1="${padY+chartH}" x2="${w-15}" y2="${padY+chartH}" stroke="#334155"/>
+            <text x="${padX-6}" y="${padY+chartH+4}" fill="#94a3b8" font-size="8" text-anchor="end" class="font-mono-tech">0</text>
+        `;
+
+        dataset.forEach((d, i) => {
+          const x = padX + (i + 0.5) * (chartW / count) - barWidth / 2;
+          const barH = (d.output / maxOut) * chartH;
+          const y = padY + chartH - barH;
+          const barColor = isShift ? (d.shift === '早班' ? '#06b6d4' : '#3b82f6') : '#10b981';
+
+          svgHtml += `
+            <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${barH.toFixed(1)}" rx="2" fill="${barColor}">
+              <title>${d.label} Output: ${d.output.toLocaleString()} pcs</title>
+            </rect>
+          `;
+
+          if (!isShift || i % 2 === 0) {
+            svgHtml += `
+              <text x="${(x + barWidth/2).toFixed(1)}" y="${padY + chartH + 16}" fill="#94a3b8" font-size="${isShift ? '8' : '9'}" text-anchor="middle" class="font-mono-tech">${d.label}</text>
+            `;
+          }
+        });
+
+        svgHtml += `</svg>`;
+        return svgHtml;
+      }
+
+      function updateStationTrendModalContent() {
+        const st = state.trendModalStation;
+        trendModalStationName.textContent = `${st} 站點`;
+        const data = generate7DayStationData(st);
+        const isShift = state.trendGrainMode === 'shift';
+        const activeData = isShift ? data.shiftData : data.dayData;
+
+        // 計算 KPI 總計
+        let sumOee = 0, sumOut = 0;
+        data.dayData.forEach(d => { sumOee += d.oee; sumOut += d.output; });
+        trendKpiAvgOee.textContent = `${(sumOee / data.dayData.length).toFixed(1)}%`;
+        trendKpiTotalOutput.innerHTML = `${sumOut.toLocaleString()} <span style="font-size:10px; color:var(--text-muted);">pcs</span>`;
+
+        outputLegendHint.textContent = isShift ? '早班(青) / 夜班(藍) 產量' : '全日產能加總';
+
+        // 繪製 SVG 折線與長條圖
+        oeeChartContainer.innerHTML = renderSvgLineChart(activeData, isShift);
+        outputChartContainer.innerHTML = renderSvgBarChart(activeData, isShift);
+
+        // 渲染 Alarm 排行長條
+        alarmChartContainer.innerHTML = '';
+        data.alarmCounts.forEach(al => {
+          const row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.flexDirection = 'column';
+          row.style.gap = '3px';
+          row.innerHTML = `
+            <div style="display:flex; justify-content:space-between; font-size:11px; color:#cbd5e1;">
+              <span class="font-mono-tech">${al.name}</span>
+              <span class="font-mono-tech" style="color:#fca5a5; font-weight:700;">${al.count} 次 (${al.percent}%)</span>
+            </div>
+            <div style="width:100%; height:6px; background:#1e293b; border-radius:999px; overflow:hidden;">
+              <div style="width:${al.percent}%; height:100%; background:linear-gradient(90deg, #f97316, #ef4444); border-radius:999px;"></div>
+            </div>
+          `;
+          alarmChartContainer.appendChild(row);
+        });
+
+        // 渲染 Repair 工單進度
+        repairChartContainer.innerHTML = '';
+        data.repairStats.forEach(rep => {
+          const row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.justifyContent = 'space-between';
+          row.style.padding = '4px 6px';
+          row.style.background = '#0b1325';
+          row.style.borderRadius = '5px';
+          row.style.fontSize = '11px';
+
+          const tagColor = rep.status === '已結案' ? '#10b981' : '#f97316';
+          row.innerHTML = `
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="repair-code-tag">${rep.code}</span>
+              <span style="color:#cbd5e1;">${rep.desc}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="font-mono-tech" style="color:#94a3b8;">累計 ${rep.total} 次</span>
+              <span class="pill-badge" style="background:rgba(255,255,255,0.06); color:${tagColor}; border:1px solid ${tagColor}; padding:1px 6px; font-size:10px;">${rep.status}</span>
+            </div>
+          `;
+          repairChartContainer.appendChild(row);
+        });
+      }
+
+      function openStationTrendModal(st) {
+        state.trendModalStation = st;
+        updateStationTrendModalContent();
+        stationTrendModal.classList.remove('hidden');
+      }
+
+      closeTrendModalBtn.addEventListener('click', () => stationTrendModal.classList.add('hidden'));
+      closeTrendModalBtn2.addEventListener('click', () => stationTrendModal.classList.add('hidden'));
+
+      trendGrainDayBtn.addEventListener('click', () => {
+        state.trendGrainMode = 'day';
+        trendGrainDayBtn.classList.add('active');
+        trendGrainShiftBtn.classList.remove('active');
+        updateStationTrendModalContent();
+      });
+
+      trendGrainShiftBtn.addEventListener('click', () => {
+        state.trendGrainMode = 'shift';
+        trendGrainShiftBtn.classList.add('active');
+        trendGrainDayBtn.classList.remove('active');
+        updateStationTrendModalContent();
+      });
+
+      // ==========================================================================
+      // [JS-07] 大螢幕無人值守「自動輪播巡檢」引擎 (TV Carousel Mode)
+      // ==========================================================================
+      function startCarousel() {
+        state.isCarouselActive = true;
+        carouselStatusText.textContent = 'ON (10s)';
+        toggleCarouselBtn.classList.add('active');
+        showToast('📺 已啟動戰情室電視牆輪播模式 (每 10 秒自動輪替站點)');
+
+        if (state.carouselTimer) clearInterval(state.carouselTimer);
+        state.carouselTimer = setInterval(() => {
+          if (state.currentView !== 'live') return;
+
+          // 檢查全廠是否有紅燈異常，有則直接暫停
+          const redMachines = state.monitoredMachines.filter(m => m.fab === state.selectedFab && m.status === 'red');
+          if (redMachines.length > 0) {
+            updateCriticalAlertTicker();
+            return;
+          }
+
+          const curIdx = ALL_STATIONS.indexOf(state.activeStation);
+          const nextIdx = (curIdx + 1) % ALL_STATIONS.length;
+          state.activeStation = ALL_STATIONS[nextIdx];
+          activeStationTitle.textContent = state.activeStation;
+          state.globalStatusFilter = 'all';
+          filterModeBanner.classList.add('hidden');
+          renderStationSummaryCards();
+          renderMachineCards();
+        }, state.carouselIntervalSec * 1000);
+      }
+
+      function stopCarousel() {
+        state.isCarouselActive = false;
+        carouselStatusText.textContent = 'OFF';
+        toggleCarouselBtn.classList.remove('active');
+        if (state.carouselTimer) clearInterval(state.carouselTimer);
+      }
+
+      toggleCarouselBtn.addEventListener('click', () => {
+        if (state.isCarouselActive) {
+          stopCarousel();
+          showToast('已停止電視牆自動輪播');
+        } else {
+          startCarousel();
+        }
+      });
+
+      // ==========================================================================
+      // [JS-08] 人員登入與權限管理 (JWT 假想架構 & RBAC 角色切換)
+      // ==========================================================================
+      function updateAuthUi() {
+        if (state.currentUser.isLoggedIn) {
+          const roleNames = {
+            operator: '作業員 (唯讀)',
+            engineer: '製程工程師',
+            manager: '廠務主管'
+          };
+          userAuthIcon.textContent = '🟢';
+          userAuthText.textContent = `${state.currentUser.empId} (${roleNames[state.currentUser.role] || '人員'})`;
+        } else {
+          userAuthIcon.textContent = '👤';
+          userAuthText.textContent = '人員登入';
+        }
+
+        // 依權限控制 UI（作業員唯讀模式：禁止拖曳與刪除）
+        const isOperator = state.currentUser.role === 'operator';
+        if (isOperator) {
+          openAddMachineBtn.style.display = 'none';
+          saveChangesBtn.style.display = 'none';
+        } else {
+          openAddMachineBtn.style.display = 'inline-flex';
+          saveChangesBtn.style.display = 'inline-flex';
+        }
+      }
+
+      openAuthModalBtn.addEventListener('click', () => {
+        authEmpIdInput.value = state.currentUser.empId || '';
+        authRoleSelect.value = state.currentUser.role || 'engineer';
+        userAuthModal.classList.remove('hidden');
+      });
+
+      closeAuthModalBtn.addEventListener('click', () => userAuthModal.classList.add('hidden'));
+      cancelAuthBtn.addEventListener('click', () => userAuthModal.classList.add('hidden'));
+
+      confirmLoginBtn.addEventListener('click', () => {
+        const empId = authEmpIdInput.value.trim() || '83921';
+        const role = authRoleSelect.value;
+
+        state.currentUser = {
+          isLoggedIn: true,
+          empId,
+          role,
+          token: `jwt-bearer-token-${Date.now()}`
+        };
+
+        updateAuthUi();
+        renderMachineCards(); // 刷新卡片上的唯讀與按鈕限制
+        userAuthModal.classList.add('hidden');
+        showToast(`✔ 登入成功！工號: ${empId}，權限身分: ${role.toUpperCase()}`);
+      });
+
+      authLogoutBtn.addEventListener('click', () => {
+        state.currentUser = {
+          isLoggedIn: false,
+          empId: '',
+          role: 'operator',
+          token: ''
+        };
+        updateAuthUi();
+        renderMachineCards();
+        userAuthModal.classList.add('hidden');
+        showToast('已登出目前人員身分，自動切換至訪客/作業員唯讀模式');
+      });
+
+      updateAuthUi();
+
+      // ==========================================================================
+      // [JS-09] 下半部：單一機台卡片渲染 (Chip 標籤、四率、Drag & Drop、燈號模擬)
+      // ==========================================================================
       function renderRepairItemHtml(itemStr) {
         if (!itemStr) return '';
         const match = itemStr.match(/^(?:\d+\.\s*)?\[(.*?)\]\s*(.*?)\s*(?:\((.*?)\))?$/);
@@ -1447,7 +2457,6 @@
         return `<div class="log-item-line font-mono-tech" title="${itemStr}"><span class="repair-desc-text">${itemStr}</span></div>`;
       }
 
-      // 格式化 Alarm 告警項目 (標籤晶片化與溢出省略保護)
       function renderAlarmItemHtml(itemStr, isMachineRed) {
         if (!itemStr) return '';
         const match = itemStr.match(/^(.*?)\s*\[(.*?)\]$/);
@@ -1476,16 +2485,26 @@
 
       function renderMachineCards() {
         machineCardsContainer.innerHTML = '';
-        const stationMachines = state.monitoredMachines.filter(
-          m => m.fab === state.selectedFab && m.station === state.activeStation
-        );
+        const isOperator = state.currentUser.role === 'operator';
 
-        activeStationCountBadge.textContent = `共 ${stationMachines.length} 台機台`;
+        // 判斷是否處於全廠穿透篩選模式
+        let stationMachines = [];
+        if (state.globalStatusFilter !== 'all') {
+          stationMachines = state.monitoredMachines.filter(
+            m => m.fab === state.selectedFab && m.status === state.globalStatusFilter
+          );
+          activeStationCountBadge.textContent = `穿透篩選：共 ${stationMachines.length} 台機台`;
+        } else {
+          stationMachines = state.monitoredMachines.filter(
+            m => m.fab === state.selectedFab && m.station === state.activeStation
+          );
+          activeStationCountBadge.textContent = `共 ${stationMachines.length} 台機台`;
+        }
 
         if (stationMachines.length === 0) {
           machineCardsContainer.innerHTML = `
             <div style="grid-column: 1 / -1; padding: 36px; text-align: center; border: 1px dashed #334155; border-radius: 12px; color: var(--text-muted); font-size: 13px;">
-              目前 ${state.activeStation} 站點尚無監控機台。請點選上方「＋ add 新增機台」自 EQP Data 加入機台進行監控。
+              目前未找到符合條件之機台。請點選上方「＋ add 新增機台」或切換篩選條件。
             </div>
           `;
           return;
@@ -1494,7 +2513,7 @@
         stationMachines.forEach((machine, index) => {
           const card = document.createElement('div');
           card.className = 'machine-card';
-          card.draggable = true;
+          card.draggable = !isOperator && (state.globalStatusFilter === 'all');
           card.dataset.machineId = machine.machine_id;
 
           const statusBadgeHtml =
@@ -1504,18 +2523,21 @@
               ? '<span class="pill-badge orange">🟠 IDLE 警告</span>'
               : '<span class="pill-badge green">🟢 Run 正常</span>';
 
+          const deleteBtnHtml = isOperator
+            ? `<span style="font-size:10px; color:var(--text-muted);">唯讀模式</span>`
+            : `<button type="button" class="btn-action delete-machine-btn" style="padding:3px 8px; font-size:11px; color:#fca5a5; border-color:rgba(239,68,68,0.4);" title="從目前站點看板移除此機台">🗑️ 刪除</button>`;
+
           card.innerHTML = `
             <div>
-              <!-- 頂部：Machine ID、資產編號與狀態燈號 -->
               <div class="machine-card-header">
                 <div class="machine-title-left">
                   <span class="font-mono-tech machine-id-text">${machine.machine_id}</span>
                   <span class="font-mono-tech machine-asset-tag">${machine.asset_no}</span>
+                  ${state.globalStatusFilter !== 'all' ? `<span style="font-size:10px; color:#38bdf8; padding:1px 5px; background:rgba(56,189,248,0.15); border-radius:3px;">${machine.station}</span>` : ''}
                 </div>
                 ${statusBadgeHtml}
               </div>
 
-              <!-- 核心數據：OEE 與 Output -->
               <div style="display:flex; align-items:baseline; justify-content:space-between; margin: 8px 2px 6px 2px;">
                 <div>
                   <span style="font-size:11px; color:var(--text-muted);">OEE (綜合稼動率):</span>
@@ -1528,7 +2550,6 @@
                 </div>
               </div>
 
-              <!-- 四率展開條 (Setup rate / Run rate / IDLE / Down rate) -->
               <div class="four-rates-container">
                 <div class="rate-stacked-bar">
                   <div class="rate-bar-setup" style="width:${machine.setupRate}%;" title="Setup rate: ${machine.setupRate}%"></div>
@@ -1537,29 +2558,15 @@
                   <div class="rate-bar-down" style="width:${machine.downRate}%;" title="Down rate: ${machine.downRate}%"></div>
                 </div>
                 <div class="rates-legend-grid font-mono-tech">
-                  <div>
-                    <span style="color:#38bdf8;">Setup</span>
-                    <span class="rates-legend-val">${machine.setupRate}%</span>
-                  </div>
-                  <div>
-                    <span style="color:#10b981;">Run</span>
-                    <span class="rates-legend-val">${machine.runRate}%</span>
-                  </div>
-                  <div>
-                    <span style="color:#f97316;">IDLE</span>
-                    <span class="rates-legend-val">${machine.idleRate}%</span>
-                  </div>
-                  <div>
-                    <span style="color:#ef4444;">Down</span>
-                    <span class="rates-legend-val">${machine.downRate}%</span>
-                  </div>
+                  <div><span style="color:#38bdf8;">Setup</span><span class="rates-legend-val">${machine.setupRate}%</span></div>
+                  <div><span style="color:#10b981;">Run</span><span class="rates-legend-val">${machine.runRate}%</span></div>
+                  <div><span style="color:#f97316;">IDLE</span><span class="rates-legend-val">${machine.idleRate}%</span></div>
+                  <div><span style="color:#ef4444;">Down</span><span class="rates-legend-val">${machine.downRate}%</span></div>
                 </div>
               </div>
 
-              <!-- 分隔線 -->
               <div style="margin: 8px 0; border-bottom: 1px dashed rgba(71,85,105,0.6);"></div>
 
-              <!-- 雙欄並排：Alarm Top 3 與 Repair Top 3 (開立單據項目 A01, A02, A03) -->
               <div class="dual-log-grid">
                 <div class="log-subpanel">
                   <div class="log-subpanel-title" style="color:#fca5a5;">
@@ -1583,7 +2590,6 @@
               </div>
             </div>
 
-            <!-- 卡片操作頁尾：模擬三色燈切換與刪除機台 -->
             <div class="card-footer-actions">
               <div style="display:flex; align-items:center; gap:4px;">
                 <span style="font-size:10px; color:var(--text-muted);">模擬燈號:</span>
@@ -1592,13 +2598,11 @@
                 <button type="button" class="btn-action quick-status-btn" data-status="red" style="padding:1px 6px; font-size:10px; color:#fca5a5;">紅</button>
               </div>
 
-              <button type="button" class="btn-action delete-machine-btn" style="padding:3px 8px; font-size:11px; color:#fca5a5; border-color:rgba(239,68,68,0.4);" title="從目前站點看板移除此機台">
-                🗑️ 刪除
-              </button>
+              ${deleteBtnHtml}
             </div>
           `;
 
-          // 綁定卡片內快速狀態切換 (供使用者測試規則 B 異常優先變色)
+          // 模擬切換燈號
           card.querySelectorAll('.quick-status-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
               e.stopPropagation();
@@ -1618,24 +2622,29 @@
               renderStationSummaryCards();
               renderMachineCards();
               updateOverallStats();
+              updateCriticalAlertTicker();
               showToast(`機台 ${machine.machine_id} 燈號已切換為【${targetStatus.toUpperCase()}】`);
             });
           });
 
-          // 綁定刪除機台
-          card.querySelector('.delete-machine-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            removeMachineFromBoard(machine.machine_id);
-          });
+          // 刪除按鈕
+          const delBtn = card.querySelector('.delete-machine-btn');
+          if (delBtn) {
+            delBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              removeMachineFromBoard(machine.machine_id);
+            });
+          }
 
-          // 綁定原生 HTML5 拖曳排序 (Drag & Drop)
-          attachDragAndDropHandlers(card, machine.machine_id);
+          if (!isOperator && state.globalStatusFilter === 'all') {
+            attachDragAndDropHandlers(card, machine.machine_id);
+          }
 
           machineCardsContainer.appendChild(card);
         });
       }
 
-      // 拖曳排序事件綁定
+      // 拖曳排序
       let draggedMachineId = null;
       function attachDragAndDropHandlers(cardElement, mId) {
         cardElement.addEventListener('dragstart', (e) => {
@@ -1673,7 +2682,6 @@
         });
       }
 
-      // 在同站點內重新排序機台
       function reorderMachinesInStation(sourceId, targetId) {
         const stationMachines = state.monitoredMachines.filter(
           m => m.fab === state.selectedFab && m.station === state.activeStation
@@ -1687,7 +2695,6 @@
         const [movedItem] = stationMachines.splice(sourceIndex, 1);
         stationMachines.splice(targetIndex, 0, movedItem);
 
-        // 重新組裝主陣列
         const otherMachines = state.monitoredMachines.filter(
           m => !(m.fab === state.selectedFab && m.station === state.activeStation)
         );
@@ -1697,7 +2704,6 @@
         showToast(`已調整 ${movedItem.machine_id} 順序，點擊「儲存變更」可保存排序`);
       }
 
-      // 從看板刪除機台
       function removeMachineFromBoard(mId) {
         const idx = state.monitoredMachines.findIndex(m => m.machine_id === mId && m.fab === state.selectedFab);
         if (idx !== -1) {
@@ -1705,11 +2711,11 @@
           renderStationSummaryCards();
           renderMachineCards();
           updateOverallStats();
+          updateCriticalAlertTicker();
           showToast(`已自看板移除機台 ${removed.machine_id}`);
         }
       }
 
-      // 儲存變更至 localStorage
       function saveToLocalStorage() {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state.monitoredMachines));
@@ -1721,7 +2727,6 @@
 
       saveChangesBtn.addEventListener('click', saveToLocalStorage);
 
-      // 恢復預設
       resetDefaultsBtn.addEventListener('click', () => {
         try {
           localStorage.removeItem(STORAGE_KEY);
@@ -1730,22 +2735,21 @@
         renderStationSummaryCards();
         renderMachineCards();
         updateOverallStats();
+        updateCriticalAlertTicker();
         showToast('已恢復預設機台配置與排序');
       });
 
       // ==========================================================================
-      // [JS-06] EQP Data 比對與 + Add 新增機台流程 (Modal Logic)
+      // [JS-10] EQP Data 驗證、+ Add 新增、SQLite 載入
       // ==========================================================================
       function updateCandidateSelectOptions() {
         const selectedStation = modalStationSelect.value;
         const currentFab = state.selectedFab;
 
-        // 找出已在看板上的機台 ID
         const activeIds = state.monitoredMachines
           .filter(m => m.fab === currentFab)
           .map(m => m.machine_id);
 
-        // 自 EQP Data 中篩選出此廠別、此站別但尚未加入看板的機台
         const candidates = state.eqpDatabase.filter(
           item => item.fab === currentFab && item.station === selectedStation && !activeIds.includes(item.machine_id)
         );
@@ -1773,7 +2777,6 @@
       });
 
       modalStationSelect.addEventListener('change', updateCandidateSelectOptions);
-
       closeAddModalBtn.addEventListener('click', () => addMachineModal.classList.add('hidden'));
       cancelAddBtn.addEventListener('click', () => addMachineModal.classList.add('hidden'));
 
@@ -1791,7 +2794,6 @@
           return;
         }
 
-        // 嚴格比對 EQP Data 主檔：必須存在於目前廠別中
         const eqpMatch = state.eqpDatabase.find(
           item => item.fab === currentFab && item.machine_id.toUpperCase() === machineCodeToAdd.toUpperCase()
         );
@@ -1802,7 +2804,6 @@
           return;
         }
 
-        // 檢查是否已在看板中
         const alreadyInBoard = state.monitoredMachines.some(
           m => m.fab === currentFab && m.machine_id === eqpMatch.machine_id
         );
@@ -1813,10 +2814,9 @@
           return;
         }
 
-        // 通過驗證，新增機台
         const newEntry = {
           fab: eqpMatch.fab,
-          station: targetStation, // 歸入選定站別
+          station: targetStation,
           machine_id: eqpMatch.machine_id,
           asset_no: eqpMatch.asset_no,
           ...generateMachineMetrics(eqpMatch.machine_id, targetStation, state.monitoredMachines.length + 1)
@@ -1829,18 +2829,15 @@
         renderStationSummaryCards();
         renderMachineCards();
         updateOverallStats();
+        updateCriticalAlertTicker();
         addMachineModal.classList.add('hidden');
-        showToast(`✔ 成功比對 EQP Data 並加入機台 ${newEntry.machine_id} (${newEntry.asset_no}) 至 ${targetStation}`);
+        showToast(`✔ 成功比對 EQP Data 並加入機台 ${newEntry.machine_id} 至 ${targetStation}`);
       });
 
-      // 監聽手動輸入即時清除錯誤
       modalManualInput.addEventListener('input', () => {
         modalErrorHint.classList.add('hidden');
       });
 
-      // ==========================================================================
-      // [JS-07] SQLite DB 檢視與本地 .db 檔案載入接口 (DB Inspector)
-      // ==========================================================================
       function renderDbPreview() {
         dbPreviewTbody.innerHTML = '';
         state.eqpDatabase.slice(0, 10).forEach(row => {
@@ -1863,14 +2860,12 @@
       closeDbModalBtn.addEventListener('click', () => dbInspectorModal.classList.add('hidden'));
       closeDbModalBtn2.addEventListener('click', () => dbInspectorModal.classList.add('hidden'));
 
-      // 支援本地載入 SQLite .db 檔案
       sqliteFileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
         const reader = new FileReader();
         reader.onload = function () {
-          // 檢驗 SQLite 檔案標頭 "SQLite format 3\0"
           const arr = new Uint8Array(reader.result.slice(0, 16));
           const header = String.fromCharCode.apply(null, arr);
           if (header.startsWith('SQLite format 3')) {
@@ -1885,7 +2880,7 @@
       });
 
       // ==========================================================================
-      // [JS-08] HISTORY 24H 自由時間軸渲染邏輯 (00:00 ~ 23:59 任意選擇)
+      // [JS-11] HISTORY 24H 自由時間滑桿與歷史快照
       // ==========================================================================
       function formatMinutesToTimeStr(totalMinutes) {
         const h = Math.floor(totalMinutes / 60);
@@ -1901,17 +2896,14 @@
         return 950;
       }
 
-      // 根據歷史分鐘數產生確定性快照 (Deterministic Historical Snapshot)
       function renderHistorySnapshot() {
         const totalMin = state.historyMinutes;
         const timeStr = formatMinutesToTimeStr(totalMin);
         historySnapshotTimeLabel.textContent = timeStr;
         sliderIndicatorText.textContent = `當前選擇時間點：${timeStr}`;
 
-        // 渲染 History 上半部站點快照
         historyStationGrid.innerHTML = '';
         ALL_STATIONS.forEach((st, idx) => {
-          // 模擬在該歷史分鐘數下的生產變動 (由時間種子驅動)
           const seed = (totalMin * 7 + idx * 13) % 23;
           let oee = +(84 + ((seed * 3) % 12) + (totalMin % 10) * 0.2).toFixed(1);
           let status = 'green';
@@ -1968,7 +2960,6 @@
           historyStationGrid.appendChild(card);
         });
 
-        // 渲染 History 下半部機台卡片快照
         historyMachineCardsContainer.innerHTML = '';
         const stationMachines = state.monitoredMachines.filter(
           m => m.fab === state.selectedFab && m.station === state.activeStation
@@ -1994,11 +2985,6 @@
             mIdle = 18.0;
             mDown = 6.0;
             mRun = 71.0;
-          } else {
-            mSetup = +(3.0 + (mSeed % 3)).toFixed(1);
-            mIdle = +(5.0 + (mSeed % 4)).toFixed(1);
-            mDown = +(2.0 + (mSeed % 3)).toFixed(1);
-            mRun = +(100 - mSetup - mIdle - mDown).toFixed(1);
           }
 
           const hOutput = Math.round((totalMin / 1440) * 15000 * (mRun / 88));
@@ -2066,7 +3052,6 @@
         });
       }
 
-      // 監聽 History 滑桿與時間輸入器
       historyTimeSlider.addEventListener('input', (e) => {
         state.historyMinutes = parseInt(e.target.value, 10);
         historyTimeInput.value = formatMinutesToTimeStr(state.historyMinutes);
@@ -2091,7 +3076,7 @@
       });
 
       // ==========================================================================
-      // [JS-09] 視圖切換與無障礙高對比模式 (View Switcher & Accessibility)
+      // [JS-12] 視圖切換、高對比無障礙模式與程式入口
       // ==========================================================================
       navLiveBtn.addEventListener('click', () => {
         state.currentView = 'live';
@@ -2110,31 +3095,29 @@
         renderHistorySnapshot();
       });
 
-      // 廠別切換 (Fab Floor Switcher)
       fabSelect.addEventListener('change', (e) => {
         state.selectedFab = e.target.value;
         renderStationSummaryCards();
         renderMachineCards();
         updateOverallStats();
+        updateCriticalAlertTicker();
         if (state.currentView === 'history') {
           renderHistorySnapshot();
         }
         showToast(`已切換至 ${state.selectedFab}`);
       });
 
-      // 高對比無障礙模式切換
       toggleContrastBtn.addEventListener('click', () => {
         document.body.classList.toggle('high-contrast-mode');
         const isHc = document.body.classList.contains('high-contrast-mode');
         showToast(isHc ? '已啟用高對比純色模式 (關閉毛玻璃模糊)' : '已還原標準科技磨砂玻璃模式');
       });
 
-      // ==========================================================================
-      // [JS-10] 初始渲染入口 (Initialization Entrypoint)
-      // ==========================================================================
+      // 初始渲染
       renderStationSummaryCards();
       renderMachineCards();
       updateOverallStats();
+      updateCriticalAlertTicker();
     })();
   </script>
 </body>
