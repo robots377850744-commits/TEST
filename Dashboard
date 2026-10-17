@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>61-6F Fab 智慧製造戰情室 Dashboard</title>
+
+  <!-- ==========================================================================
+       [CSS-01] 全域變數、配色與無障礙高對比主題 (Global Variables & Themes)
+       ========================================================================== -->
+  <style>
+    :root {
+      /* 工業深色背景色票 */
+      --bg-base: #0a0f1d;
+      --bg-surface: #111827;
+      --bg-card-solid: #151e32;
+      --bg-card-header: #1b253d;
+
+      /* 磨砂玻璃擬態核心條件 (Glassmorphism Properties) */
+      --glass-bg: rgba(17, 24, 39, 0.82);
+      --glass-blur: blur(20px);
+      --glass-border: rgba(148, 163, 184, 0.22);
+      --glass-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+
+      /* 工業三色燈色票 (高對比實心色) */
+      --status-green: #10b981;
+      --status-green-bg: rgba(16, 185, 129, 0.16);
+      --status-green-border: rgba(16, 185, 129, 0.4);
+
+      --status-orange: #f97316;
+      --status-orange-bg: rgba(249, 115, 22, 0.16);
+      --status-orange-border: rgba(249, 115, 22, 0.4);
+
+      --status-red: #ef4444;
+      --status-red-bg: rgba(239, 68, 68, 0.18);
+      --status-red-border: rgba(239, 68, 68, 0.45);
+
+      /* 科技主題重點色 */
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-subtle: #27354f;
+    }
+
+    /* 無障礙 / 高對比模式 (High Contrast Mode) */
+    body.high-contrast-mode {
+      --bg-base: #000000;
+      --bg-surface: #0a0a0a;
+      --bg-card-solid: #121212;
+      --bg-card-header: #1e1e1e;
+      --glass-bg: #121212;
+      --glass-blur: none;
+      --glass-border: #475569;
+      --text-main: #ffffff;
+      --text-muted: #cbd5e1;
+      --border-subtle: #475569;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 12px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background-color: var(--bg-base);
+      background-image:
+        radial-gradient(circle at 10% 15%, rgba(6, 182, 212, 0.08), transparent 40%),
+        radial-gradient(circle at 90% 10%, rgba(59, 130, 246, 0.08), transparent 40%),
+        linear-gradient(180deg, #090e1c 0%, #0d1527 50%, #090e1a 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .font-mono-tech {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "JetBrains Mono", monospace;
+    }
+
+    .app-container {
+      max-width: 1680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* 玻璃擬態容器 (依 4 大原則：僅用於導覽、重點面板、彈窗) */
+    .glass-surface {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    /* ==========================================================================
+       [CSS-02] 頁首與導覽列 (Top Header & Live/History Navigation)
+       ========================================================================== */
+    .header-bar {
+      padding: 10px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(37, 99, 235, 0.25));
+      border: 1px solid rgba(34, 211, 238, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #67e8f9;
+    }
+
+    /* Live vs History 分頁切換鈕 */
+    .view-switcher {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .view-tab-btn {
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .view-tab-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .view-tab-btn.active {
+      background: linear-gradient(90deg, #0284c7, #2563eb);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(2, 132, 199, 0.35);
+    }
+
+    .clock-display-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 6px 14px;
+    }
+
+    .header-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: inherit;
+    }
+
+    .pill-badge.green {
+      background: var(--status-green-bg);
+      color: #6ee7b7;
+      border: 1px solid var(--status-green-border);
+    }
+
+    .pill-badge.orange {
+      background: var(--status-orange-bg);
+      color: #fdba74;
+      border: 1px solid var(--status-orange-border);
+    }
+
+    .pill-badge.red {
+      background: var(--status-red-bg);
+      color: #fca5a5;
+      border: 1px solid var(--status-red-border);
+    }
+
+    /* ==========================================================================
+       [CSS-03] 上半部：站別總覽看板 (By Station Summary Grid - 結構 B)
+       ========================================================================== */
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px;
+      margin-bottom: 8px;
+    }
+
+    .station-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .station-card {
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: var(--bg-card-solid);
+      border: 1.5px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .station-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 站點卡片選取狀態 (Selected Station) */
+    .station-card.active-station {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35), 0 8px 20px rgba(2, 132, 199, 0.25);
+      background: #19233c;
+    }
+
+    /* 站點三色燈 (規則 B：異常優先告警) */
+    .station-card[data-status="green"] {
+      border-top: 4px solid var(--status-green);
+    }
+    .station-card[data-status="orange"] {
+      border-top: 4px solid var(--status-orange);
+    }
+    .station-card[data-status="red"] {
+      border-top: 4px solid var(--status-red);
+    }
+
+    .station-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .station-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.02em;
+    }
+
+    .station-stats-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .station-stats-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    /* ==========================================================================
+       [CSS-04] 中間操作工具列 (+Add / 儲存變更 / 刪除)
+       ========================================================================== */
+    .toolbar-bar {
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+    }
+
+    .btn-action {
+      cursor: pointer;
+      border-radius: 7px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(30, 41, 59, 0.9);
+      color: #e2e8f0;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-action:hover {
+      border-color: #38bdf8;
+      color: #ffffff;
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .btn-primary-add {
+      cursor: pointer;
+      border-radius: 7px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 800;
+      border: none;
+      background: linear-gradient(90deg, #06b6d4, #2563eb);
+      color: #020617;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 12px rgba(6, 182, 212, 0.35);
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary-add:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+
+    .btn-save-storage {
+      cursor: pointer;
+      border-radius: 7px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #10b981;
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-save-storage:hover {
+      background: rgba(16, 185, 129, 0.32);
+      color: #ffffff;
+    }
+
+    /* ==========================================================================
+       [CSS-05] 下半部：機台詳細資訊卡 (By Machine ID Cards Grid)
+       ========================================================================== */
+    .machine-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 14px;
+    }
+
+    /* 機台卡片（高對比實心底板，支援拖曳） */
+    .machine-card {
+      background: var(--bg-card-solid);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+      cursor: grab;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .machine-card:hover {
+      border-color: rgba(56, 189, 248, 0.45);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    }
+
+    .machine-card.dragging {
+      opacity: 0.45;
+      cursor: grabbing;
+      border: 2px dashed #38bdf8;
+    }
+
+    .machine-card.drag-over {
+      border-color: #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+    }
+
+    .machine-card-header {
+      background: var(--bg-card-header);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .machine-title-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .machine-id-text {
+      font-size: 14px;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .machine-asset-tag {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: #0f172a;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+    }
+
+    /* 四率進度條 (Setup / Run / IDLE / Down) */
+    .four-rates-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .rate-stacked-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #1e293b;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .rate-bar-setup { background: #38bdf8; }
+    .rate-bar-run   { background: #10b981; }
+    .rate-bar-idle  { background: #f97316; }
+    .rate-bar-down  { background: #ef4444; }
+
+    .rates-legend-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .rates-legend-val {
+      font-weight: 700;
+      color: #ffffff;
+      display: block;
+      margin-top: 1px;
+    }
+
+    /* Alarm Top 3 與 Repair Top 3 雙欄並排 */
+    .dual-log-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 11px;
+    }
+
+    .log-subpanel {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+
+    .log-subpanel-title {
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .log-item-line {
+      font-size: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-muted);
+      padding: 1.5px 0;
+    }
+
+    .log-item-line.active-alert {
+      color: #fca5a5;
+      font-weight: 600;
+    }
+
+    .card-footer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding-top: 4px;
+      border-top: 1px dashed rgba(71, 85, 105, 0.6);
+    }
+
+    /* ==========================================================================
+       [CSS-06] History 24H 自由時間滑桿與歷史視圖 (History 24H Slider View)
+       ========================================================================== */
+    .history-slider-panel {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .time-slider-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #1e293b;
+      accent-color: #06b6d4;
+      cursor: pointer;
+    }
+
+    .history-presets-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    /* ==========================================================================
+       [CSS-07] EQP Data 匯入與新增機台驗證 Modal
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 580px;
+      background: #111827;
+      border: 1px solid #38bdf8;
+      border-radius: 12px;
+      padding: 18px 22px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 12px;
+    }
+
+    .form-input, .form-select {
+      background: #0b1120;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 7px 10px;
+      color: #ffffff;
+      font-size: 13px;
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: #38bdf8;
+    }
+
+    .error-hint {
+      color: #ef4444;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .toast-popup {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 110;
+      background: #0f172a;
+      border: 1px solid #38bdf8;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       [HTML-01] 頁首導覽與控制列 (Header Bar & Navigation)
+       ========================================================================== -->
+  <div class="app-container">
+
+    <header class="glass-surface header-bar">
+      <!-- 左側：標題與即時/歷史視圖切換 -->
+      <div class="brand-group">
+        <div class="brand-icon-box">
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size:16px; font-weight:800; letter-spacing:0.02em;">智慧製造戰情室 Dashboard</div>
+          <div style="font-size:11px; color:var(--text-muted);">Station Summary &amp; Equipment Four-Rate Monitor</div>
+        </div>
+
+        <!-- 獨立 Live 與 History 分頁切換鈕 -->
+        <div class="view-switcher" style="margin-left: 12px;">
+          <button id="navLiveBtn" type="button" class="view-tab-btn active">
+            <span>🟢 Live 即時場景</span>
+          </button>
+          <button id="navHistoryBtn" type="button" class="view-tab-btn">
+            <span>⏱️ History 歷史時間軸</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 中間：即時時間跳動 -->
+      <div class="clock-display-box">
+        <svg width="18" height="18" style="color:var(--accent-cyan);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+          <div style="font-size:10px; color:var(--accent-cyan); font-weight:700;">年/月/日 現在時間</div>
+          <div id="liveClockDisplay" class="font-mono-tech" style="font-size:15px; font-weight:800;">2026/10/17 16:35:00</div>
+        </div>
+      </div>
+
+      <!-- 右側：廠別選擇、全廠燈號統計與高對比開關 -->
+      <div class="header-actions-group">
+        <!-- 全廠統計標籤 -->
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="pill-badge green" title="正常運行機台數">● 正常 <b id="statGreenCount" class="font-mono-tech">12</b></span>
+          <span class="pill-badge orange" title="警告/待機機台數">● 警告 <b id="statOrangeCount" class="font-mono-tech">2</b></span>
+          <span class="pill-badge red" title="異常停機機台數">● 異常 <b id="statRedCount" class="font-mono-tech">2</b></span>
+          <span class="font-mono-tech" style="font-size:12px; color:var(--text-muted); margin-left:4px;">
+            全廠 OEE: <b id="statTotalOee" style="color:#67e8f9;">88.2%</b>
+          </span>
+        </div>
+
+        <!-- 廠別選擇 (61-6F Fab) -->
+        <div style="display:flex; align-items:center; gap:6px; background:#0f172a; border:1px solid #334155; border-radius:8px; padding:4px 10px;">
+          <span style="font-size:11px; color:var(--text-muted);">廠別:</span>
+          <select id="fabSelect" class="form-select" style="padding:2px 4px; font-size:13px; font-weight:700; border:none; background:transparent;">
+            <option value="61-6F Fab">61-6F Fab</option>
+            <option value="61-5F Fab">61-5F Fab</option>
+            <option value="62-3F Fab">62-3F Fab</option>
+          </select>
+        </div>
+
+        <!-- 無障礙 / 高對比開關 -->
+        <button id="toggleContrastBtn" type="button" class="btn-action" title="切換高對比純色模式 (降低透明度與模糊干擾)">
+          <span>🌓 高對比</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==========================================================================
+         [HTML-02] LIVE 即時場景主視圖 (Live Scene View)
+         ========================================================================== -->
+    <main id="liveViewSection" class="flex flex-col gap-3.5">
+
+      <!-- 上半部：By 站點總覽看板 (結構 B - 顯示平均 OEE + 總 Output + 規則 B 異常燈號) -->
+      <section class="glass-surface" style="padding: 14px;">
+        <div class="section-title-row">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="width:8px; height:8px; border-radius:999px; background:var(--accent-cyan);"></span>
+            <span style="font-size:13px; font-weight:800; color:var(--accent-cyan); letter-spacing:0.04em;">
+              各站別總覽監控看板 (點擊站別方塊切換下半部機台明細)
+            </span>
+          </div>
+          <span style="font-size:11px; color:var(--text-muted);">
+            燈號規則：站內有任一台異常即顯示紅/橙燈 (異常優先告警)
+          </span>
+        </div>
+
+        <!-- 站點方塊容器 -->
+        <div id="stationSummaryGrid" class="station-summary-grid">
+          <!-- 由 JS 依站點動態渲染 -->
+        </div>
+      </section>
+
+      <!-- 中間操作工具列 (+Add 新增機台 / 儲存變更至 localStorage / 刪除說明) -->
+      <section class="toolbar-bar glass-surface">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:13px; font-weight:800; color:#ffffff;">
+            目前檢視站別：<span id="activeStationTitle" style="color:#38bdf8;">Grinding</span>
+          </span>
+          <span id="activeStationCountBadge" class="font-mono-tech" style="font-size:11px; padding:2px 8px; border-radius:5px; background:#0f172a; color:#cbd5e1; border:1px solid #334155;">
+            共 3 台機台
+          </span>
+          <span style="font-size:11px; color:var(--text-muted); margin-left:6px;">
+            💡 提示：可<b style="color:#ffffff;">直接用滑鼠拖曳卡片</b>調整站內順序，調整後請點擊「儲存變更」
+          </span>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+          <!-- 載入本地 SQLite .db 檔接口按鈕 -->
+          <button id="openDbModalBtn" type="button" class="btn-action" title="檢視或載入外部 SQLite EQP Data 主檔">
+            <span>📁 載入 SQLite DB 檔</span>
+          </button>
+
+          <!-- + Add 新增機台按鈕 -->
+          <button id="openAddMachineBtn" type="button" class="btn-primary-add">
+            <span style="font-size:15px; line-height:1;">＋</span>
+            <span>add 新增機台</span>
+          </button>
+
+          <!-- 儲存變更按鈕 (存入 localStorage) -->
+          <button id="saveChangesBtn" type="button" class="btn-save-storage" title="儲存目前的機台清單與自訂拖曳順序至 localStorage">
+            <span>💾 儲存變更</span>
+          </button>
+
+          <!-- 恢復預設按鈕 -->
+          <button id="resetDefaultsBtn" type="button" class="btn-action" title="清除 localStorage 並重設為預設機台排序">
+            <span>🔄 恢復預設</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 下半部：單一機台詳細卡片區 (By Machine ID - 四率 / Output / Alarm / Repair Top 3) -->
+      <section>
+        <div id="machineCardsContainer" class="machine-cards-grid">
+          <!-- 由 JS 動態渲染選中站點的所有機台卡片 -->
+        </div>
+      </section>
+    </main>
+
+    <!-- ==========================================================================
+         [HTML-03] HISTORY 24H 自由時間軸視圖 (History View with Free Time Slider)
+         ========================================================================== -->
+    <main id="historyViewSection" class="hidden flex flex-col gap-3.5">
+      <section class="glass-surface history-slider-panel">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <div>
+            <div style="font-size:15px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+              <span>⏱️ 24H 自由時間軸回放器 (Free Time Slider)</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+              可拖曳滑桿至任意分鐘 (例如 15:50) 或直接手動輸入時間，檢視全廠各站與機台在該歷史時間點之狀態快照
+            </div>
+          </div>
+
+          <!-- 時間手動輸入與即時顯示 -->
+          <div style="display:flex; align-items:center; gap:8px; background:#0f172a; padding:6px 14px; border-radius:8px; border:1px solid #334155;">
+            <span style="font-size:12px; color:var(--text-muted);">選擇時間點:</span>
+            <input id="historyTimeInput" type="time" value="15:50" step="60" class="form-input font-mono-tech" style="padding:3px 8px; font-weight:800; font-size:15px; color:#fcd34d;" />
+            <button id="applyTimeInputBtn" type="button" class="btn-action" style="padding:4px 8px;">定位</button>
+          </div>
+        </div>
+
+        <!-- 24H 自由滑桿 (0 ~ 1439 分鐘) -->
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <input id="historyTimeSlider" type="range" min="0" max="1439" value="950" class="time-slider-track" />
+          <div class="font-mono-tech" style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted);">
+            <span>00:00 (夜班起點)</span>
+            <span>06:00 (早班交接)</span>
+            <span>12:00 (午盤)</span>
+            <span style="color:#fcd34d; font-weight:700;" id="sliderIndicatorText">當前選擇：15:50</span>
+            <span>18:00 (晚班交接)</span>
+            <span>23:59 (收班)</span>
+          </div>
+        </div>
+
+        <!-- 常用快捷時段按鈕 -->
+        <div class="history-presets-row">
+          <span style="color:var(--text-muted);">快捷時間快選:</span>
+          <button type="button" class="btn-action history-preset-btn" data-time="08:30">08:30 早會點檢</button>
+          <button type="button" class="btn-action history-preset-btn" data-time="11:45">11:45 午盤產能</button>
+          <button type="button" class="btn-action history-preset-btn" data-time="15:50">15:50 下午抽檢</button>
+          <button type="button" class="btn-action history-preset-btn" data-time="19:30">19:30 晚班交接</button>
+          <button type="button" class="btn-action history-preset-btn" data-time="22:15">22:15 夜班連續產線</button>
+        </div>
+      </section>
+
+      <!-- 歷史快照結果：站點總覽與機台明細 -->
+      <section class="glass-surface" style="padding:14px;">
+        <div class="section-title-row">
+          <span style="font-size:13px; font-weight:800; color:#38bdf8;">
+            📅 <span id="historySnapshotTimeLabel">15:50</span> 全廠站點快照數據
+          </span>
+          <span style="font-size:11px; color:var(--text-muted);">點擊站點可切換下方歷史機台狀態</span>
+        </div>
+        <div id="historyStationGrid" class="station-summary-grid"></div>
+      </section>
+
+      <section>
+        <div id="historyMachineCardsContainer" class="machine-cards-grid"></div>
+      </section>
+    </main>
+
+    <!-- ==========================================================================
+         [HTML-04] EQP Data (SQLite DB) 接口與新增機台比對 Modal
+         ========================================================================== -->
+    <div id="addMachineModal" class="modal-overlay hidden">
+      <div class="modal-box">
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #334155; padding-bottom:10px;">
+          <div style="font-size:15px; font-weight:800; color:#ffffff; display:flex; align-items:center; gap:6px;">
+            <span style="color:var(--accent-cyan);">＋</span>
+            <span>新增監控機台 (比對 EQP Data 主檔)</span>
+          </div>
+          <button id="closeAddModalBtn" type="button" class="btn-action" style="padding:2px 8px;">✕</button>
+        </div>
+
+        <!-- 說明提示 -->
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.4;">
+          系統將自動檢查機台是否存在於目前廠別（<b id="modalCurrentFabText" style="color:#ffffff;">61-6F Fab</b>）的 EQP Data 中。若 DB 中無此機台資訊則無法新增。
+        </div>
+
+        <!-- 選擇站別 -->
+        <div class="form-group">
+          <label style="color:#cbd5e1; font-weight:600;">目標機台站別 (Station):</label>
+          <select id="modalStationSelect" class="form-select">
+            <option value="Grinding">Grinding (研磨)</option>
+            <option value="Saw">Saw (切割)</option>
+            <option value="Taping">Taping (貼帶)</option>
+            <option value="Marking">Marking (打標)</option>
+            <option value="Dieplace">Dieplace (固晶)</option>
+            <option value="Molding">Molding (封膠)</option>
+            <option value="Debond">Debond (解膠)</option>
+          </select>
+        </div>
+
+        <!-- 下拉選單：自 EQP Data 篩選尚未加入的機台 -->
+        <div class="form-group">
+          <label style="color:#cbd5e1; font-weight:600;">自 EQP Data 主檔選取待加入機台:</label>
+          <select id="modalCandidateSelect" class="form-select font-mono-tech">
+            <!-- 由 JS 動態帶出該站別未加入看板的 EQP 清單 -->
+          </select>
+        </div>
+
+        <!-- 手動輸入 Machine ID 驗證 -->
+        <div class="form-group">
+          <label style="color:#cbd5e1; font-weight:600;">或手動輸入 Machine ID 比對:</label>
+          <input id="modalManualInput" type="text" placeholder="例如: B8_6334_04 或輸入任意代碼比對" class="form-input font-mono-tech" />
+          <div id="modalErrorHint" class="error-hint hidden">❌ EQP Data 中無此機台資訊，無法新增！</div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px; border-top:1px solid #334155; padding-top:12px;">
+          <button id="cancelAddBtn" type="button" class="btn-action">取消</button>
+          <button id="confirmAddBtn" type="button" class="btn-primary-add">確認比對並加入看板</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         [HTML-05] 載入 SQLite DB 檔資訊彈窗 (SQLite DB Master Inspector)
+         ========================================================================== -->
+    <div id="dbInspectorModal" class="modal-overlay hidden">
+      <div class="modal-box" style="max-width: 640px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #334155; padding-bottom:10px;">
+          <div style="font-size:15px; font-weight:800; color:#ffffff; display:flex; align-items:center; gap:6px;">
+            <span>📁 SQLite EQP DATA 主檔接口</span>
+          </div>
+          <button id="closeDbModalBtn" type="button" class="btn-action" style="padding:2px 8px;">✕</button>
+        </div>
+
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.4;">
+          目前內建預設 EQP Data 資料庫（結構：<code class="font-mono-tech" style="color:#67e8f9;">作業廠別, 機台站別, Machine ID, 資產編號</code>）。若手邊已有整理好的 SQLite <code class="font-mono-tech" style="color:#fcd34d;">.db</code> 檔案，可直接點擊下方選擇檔案載入。
+        </div>
+
+        <div class="form-group" style="padding:10px; background:#0b1120; border:1px dashed #38bdf8; border-radius:8px;">
+          <label style="color:#38bdf8; font-weight:700;">載入本機 SQLite .db 檔案:</label>
+          <input id="sqliteFileInput" type="file" accept=".db,.sqlite,.sqlite3" style="color:#cbd5e1; font-size:12px; margin-top:4px;" />
+          <div id="dbLoadedStatusText" style="font-size:11px; color:#10b981; margin-top:4px;">✔ 內建標準 EQP Data 主檔已掛載 (共 28 筆機台資料)</div>
+        </div>
+
+        <!-- DB 表格預覽 -->
+        <div class="form-group">
+          <label style="color:#cbd5e1; font-weight:600;">目前 EQP Data 預覽 (前 8 筆):</label>
+          <div style="max-height: 160px; overflow-y:auto; border:1px solid #334155; border-radius:6px; background:#080d1a;">
+            <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:left;">
+              <thead style="background:#1e293b; color:#cbd5e1; position:sticky; top:0;">
+                <tr>
+                  <th style="padding:4px 8px;">作業廠別</th>
+                  <th style="padding:4px 8px;">機台站別</th>
+                  <th style="padding:4px 8px;">Machine ID</th>
+                  <th style="padding:4px 8px;">資產編號</th>
+                </tr>
+              </thead>
+              <tbody id="dbPreviewTbody" class="font-mono-tech" style="color:#e2e8f0;">
+                <!-- 由 JS 渲染 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end;">
+          <button id="closeDbModalBtn2" type="button" class="btn-action">關閉視窗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作提示浮動 Toast -->
+    <div id="toastPopup" class="toast-popup hidden">
+      <span style="color:#10b981;">✔</span>
+      <span id="toastMsgText">操作成功</span>
+    </div>
+
+  </div>
+
+  <!-- ==========================================================================
+       [JS-01] 全域狀態與標準 EQP Data 主檔結構 (Data Models & Global State)
+       ========================================================================== -->
+  <script>
+    (function () {
+      // 預設支援的所有廠別與站別
+      const ALL_STATIONS = ['Grinding', 'Saw', 'Taping', 'Marking', 'Dieplace', 'Molding', 'Debond'];
+
+      // 標準 EQP Data 主檔庫 (SQLite 表映射結構)
+      // 包含作業廠別、機台站別、Machine ID、資產編號
+      const DEFAULT_EQP_DATABASE = [
+        // 61-6F Fab - Grinding
+        { fab: '61-6F Fab', station: 'Grinding', machine_id: 'B8_6334_01', asset_no: 'EQP-AST-633401' },
+        { fab: '61-6F Fab', station: 'Grinding', machine_id: 'B8_6334_02', asset_no: 'EQP-AST-633402' },
+        { fab: '61-6F Fab', station: 'Grinding', machine_id: 'B8_6335_01', asset_no: 'EQP-AST-633501' },
+        { fab: '61-6F Fab', station: 'Grinding', machine_id: 'B8_6335_02', asset_no: 'EQP-AST-633502' },
+        { fab: '61-6F Fab', station: 'Grinding', machine_id: 'B8_6334_03', asset_no: 'EQP-AST-633403' },
+        { fab: '61-6F Fab', station: 'Grinding', machine_id: 'B8_6334_04', asset_no: 'EQP-AST-633404' },
+
+        // 61-6F Fab - Saw
+        { fab: '61-6F Fab', station: 'Saw', machine_id: 'B8_6330_01', asset_no: 'EQP-AST-633001' },
+        { fab: '61-6F Fab', station: 'Saw', machine_id: 'B8_6335_03', asset_no: 'EQP-AST-633503' },
+        { fab: '61-6F Fab', station: 'Saw', machine_id: 'B8_6337_01', asset_no: 'EQP-AST-633701' },
+        { fab: '61-6F Fab', station: 'Saw', machine_id: 'B8_6337_03', asset_no: 'EQP-AST-633703' },
+
+        // 61-6F Fab - Taping
+        { fab: '61-6F Fab', station: 'Taping', machine_id: 'B8_6336_01', asset_no: 'EQP-AST-633601' },
+        { fab: '61-6F Fab', station: 'Taping', machine_id: 'B8_6336_02', asset_no: 'EQP-AST-633602' },
+        { fab: '61-6F Fab', station: 'Taping', machine_id: 'B8_6337_02', asset_no: 'EQP-AST-633702' },
+        { fab: '61-6F Fab', station: 'Taping', machine_id: 'B8_6338_01', asset_no: 'EQP-AST-633801' },
+
+        // 61-6F Fab - Marking
+        { fab: '61-6F Fab', station: 'Marking', machine_id: 'B8_6338_02', asset_no: 'EQP-AST-633802' },
+        { fab: '61-6F Fab', station: 'Marking', machine_id: 'B8_6339_01', asset_no: 'EQP-AST-633901' },
+        { fab: '61-6F Fab', station: 'Marking', machine_id: 'B8_6339_02', asset_no: 'EQP-AST-633902' },
+        { fab: '61-6F Fab', station: 'Marking', machine_id: 'B8_6340_01', asset_no: 'EQP-AST-634001' },
+
+        // 61-6F Fab - Dieplace
+        { fab: '61-6F Fab', station: 'Dieplace', machine_id: 'B8_6341_01', asset_no: 'EQP-AST-634101' },
+        { fab: '61-6F Fab', station: 'Dieplace', machine_id: 'B8_6341_02', asset_no: 'EQP-AST-634102' },
+
+        // 61-6F Fab - Molding
+        { fab: '61-6F Fab', station: 'Molding', machine_id: 'B8_6342_01', asset_no: 'EQP-AST-634201' },
+        { fab: '61-6F Fab', station: 'Molding', machine_id: 'B8_6342_02', asset_no: 'EQP-AST-634202' },
+
+        // 61-6F Fab - Debond
+        { fab: '61-6F Fab', station: 'Debond', machine_id: 'B8_6343_01', asset_no: 'EQP-AST-634301' },
+        { fab: '61-6F Fab', station: 'Debond', machine_id: 'B8_6343_02', asset_no: 'EQP-AST-634302' },
+
+        // 其他廠別範例 (61-5F Fab)
+        { fab: '61-5F Fab', station: 'Grinding', machine_id: 'B5_5120_01', asset_no: 'EQP-AST-512001' },
+        { fab: '61-5F Fab', station: 'Saw', machine_id: 'B5_5121_01', asset_no: 'EQP-AST-512101' },
+        { fab: '61-5F Fab', station: 'Taping', machine_id: 'B5_5122_01', asset_no: 'EQP-AST-512201' }
+      ];
+
+      // 告警庫與單據庫
+      const ALARM_SAMPLES = {
+        Grinding: ['E104 Spindle Load High', 'W208 Cool Water Flow Low', 'E112 Chuck Vacuum Drop', 'W215 Wheel Wear Limit'],
+        Saw: ['E301 Blade Break Sensor', 'W309 Kerf Check Offset', 'E315 Vision Align Timeout', 'W322 DI Water Resistivity'],
+        Taping: ['W402 Tape Tension Fluct', 'E410 Roller Temp Dev', 'W418 Bubble Detect Warn', 'E425 Cutter Home Error'],
+        Marking: ['E503 Laser Power Atten', 'W511 OCR Read Rate < 99%', 'W519 Feeder Jam', 'E528 Scanner Temp High'],
+        Dieplace: ['E601 Pick Head Vacuum Loss', 'W608 Die Tilt Angle High', 'E614 Ring Tension Err'],
+        Molding: ['E702 Mold Chase Temp Dev', 'W710 Resin Pellet Low', 'E718 Clamp Pressure Drop'],
+        Debond: ['W805 UV Lamp Intensity Low', 'E812 Carrier Peel High', 'W819 Chuck Clean Req']
+      };
+
+      const REPAIR_SAMPLES = [
+        { code: 'A01', desc: '磨輪刀具磨耗更換單', status: '已結案' },
+        { code: 'A02', desc: '主軸軸承異常偏擺校正單', status: '作業中' },
+        { code: 'A03', desc: '吸盤真空迴路洩漏檢修單', status: '已結案' },
+        { code: 'A04', desc: '雷射模組光學鏡片清潔單', status: '已派工' },
+        { code: 'A05', desc: '純水管路阻抗校正檢修單', status: '已結案' }
+      ];
+
+      // 生成機台動態四率與指標初始資料
+      function generateMachineMetrics(mId, station, index) {
+        // 預設讓少數機台為紅燈/橙燈以展現「規則 B 異常優先告警」
+        let status = 'green';
+        let setupRate = 3.5;
+        let runRate = 88.5;
+        let idleRate = 5.2;
+        let downRate = 2.8;
+
+        if (mId === 'B8_6334_02' || mId === 'B8_6339_01') {
+          status = 'red';
+          setupRate = 2.0;
+          runRate = 52.0;
+          idleRate = 6.0;
+          downRate = 40.0;
+        } else if (mId === 'B8_6336_01' || mId === 'B8_6338_02') {
+          status = 'orange';
+          setupRate = 8.0;
+          runRate = 72.0;
+          idleRate = 14.0;
+          downRate = 6.0;
+        } else {
+          status = 'green';
+          setupRate = +(2.5 + (index % 3)).toFixed(1);
+          idleRate = +(4.0 + (index % 4)).toFixed(1);
+          downRate = +(2.0 + (index % 3)).toFixed(1);
+          runRate = +(100 - setupRate - idleRate - downRate).toFixed(1);
+        }
+
+        const oee = runRate; // OEE 與 Run rate 緊密連動
+        const output = Math.round(14000 * (oee / 88));
+
+        const alarmsPool = ALARM_SAMPLES[station] || ALARM_SAMPLES.Grinding;
+        const alarmTop3 = [
+          status === 'red' ? `${alarmsPool[0]} [觸發 3次]` : `${alarmsPool[0]} [正常]`,
+          status === 'orange' ? `${alarmsPool[1]} [微警報]` : `${alarmsPool[1]} [正常]`,
+          `${alarmsPool[2]} [PASS]`
+        ];
+
+        const repairTop3 = [
+          `1. [${REPAIR_SAMPLES[(index) % REPAIR_SAMPLES.length].code}] ${REPAIR_SAMPLES[(index) % REPAIR_SAMPLES.length].desc} (${REPAIR_SAMPLES[(index) % REPAIR_SAMPLES.length].status})`,
+          `2. [${REPAIR_SAMPLES[(index + 1) % REPAIR_SAMPLES.length].code}] ${REPAIR_SAMPLES[(index + 1) % REPAIR_SAMPLES.length].desc} (${REPAIR_SAMPLES[(index + 1) % REPAIR_SAMPLES.length].status})`,
+          `3. [${REPAIR_SAMPLES[(index + 2) % REPAIR_SAMPLES.length].code}] ${REPAIR_SAMPLES[(index + 2) % REPAIR_SAMPLES.length].desc} (${REPAIR_SAMPLES[(index + 2) % REPAIR_SAMPLES.length].status})`
+        ];
+
+        return {
+          status,
+          oee,
+          output,
+          setupRate,
+          runRate,
+          idleRate,
+          downRate,
+          alarmTop3,
+          repairTop3
+        };
+      }
+
+      // 產生初始看板機台清單 (過濾目前廠別 61-6F Fab)
+      function createInitialMonitoredList() {
+        const initialCodes = [
+          'B8_6334_01', 'B8_6334_02', 'B8_6335_01', // Grinding
+          'B8_6330_01', 'B8_6335_03', 'B8_6337_01', // Saw
+          'B8_6336_01', 'B8_6336_02', 'B8_6337_02', // Taping
+          'B8_6338_02', 'B8_6339_01', 'B8_6339_02', // Marking
+          'B8_6341_01', 'B8_6341_02',               // Dieplace
+          'B8_6342_01',                              // Molding
+          'B8_6343_01'                               // Debond
+        ];
+
+        return DEFAULT_EQP_DATABASE
+          .filter(item => item.fab === '61-6F Fab' && initialCodes.includes(item.machine_id))
+          .map((item, idx) => ({
+            ...item,
+            ...generateMachineMetrics(item.machine_id, item.station, idx)
+          }));
+      }
+
+      // LocalStorage Key
+      const STORAGE_KEY = 'FAB_WAR_ROOM_CONFIG_V3';
+
+      // 讀取 LocalStorage 或使用預設
+      function loadPersistedMonitoredList() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              return parsed;
+            }
+          }
+        } catch (e) {
+          console.warn('無法自 localStorage 讀取機台設定，採用預設值', e);
+        }
+        return createInitialMonitoredList();
+      }
+
+      // 全域應用程式狀態 (State)
+      let state = {
+        currentView: 'live', // 'live' 或 'history'
+        selectedFab: '61-6F Fab',
+        activeStation: 'Grinding',
+        historyMinutes: 950, // 15:50 (15*60 + 50 = 950)
+        eqpDatabase: [...DEFAULT_EQP_DATABASE],
+        monitoredMachines: loadPersistedMonitoredList()
+      };
+
+      // ==========================================================================
+      // [JS-02] DOM 元素引用與初始化 (DOM References)
+      // ==========================================================================
+      const navLiveBtn = document.getElementById('navLiveBtn');
+      const navHistoryBtn = document.getElementById('navHistoryBtn');
+      const liveViewSection = document.getElementById('liveViewSection');
+      const historyViewSection = document.getElementById('historyViewSection');
+      const liveClockDisplay = document.getElementById('liveClockDisplay');
+      const fabSelect = document.getElementById('fabSelect');
+      const toggleContrastBtn = document.getElementById('toggleContrastBtn');
+
+      const statGreenCount = document.getElementById('statGreenCount');
+      const statOrangeCount = document.getElementById('statOrangeCount');
+      const statRedCount = document.getElementById('statRedCount');
+      const statTotalOee = document.getElementById('statTotalOee');
+
+      const stationSummaryGrid = document.getElementById('stationSummaryGrid');
+      const activeStationTitle = document.getElementById('activeStationTitle');
+      const activeStationCountBadge = document.getElementById('activeStationCountBadge');
+      const machineCardsContainer = document.getElementById('machineCardsContainer');
+
+      const historyStationGrid = document.getElementById('historyStationGrid');
+      const historyMachineCardsContainer = document.getElementById('historyMachineCardsContainer');
+      const historyTimeSlider = document.getElementById('historyTimeSlider');
+      const historyTimeInput = document.getElementById('historyTimeInput');
+      const applyTimeInputBtn = document.getElementById('applyTimeInputBtn');
+      const sliderIndicatorText = document.getElementById('sliderIndicatorText');
+      const historySnapshotTimeLabel = document.getElementById('historySnapshotTimeLabel');
+
+      // Modal 元素
+      const addMachineModal = document.getElementById('addMachineModal');
+      const openAddMachineBtn = document.getElementById('openAddMachineBtn');
+      const closeAddModalBtn = document.getElementById('closeAddModalBtn');
+      const cancelAddBtn = document.getElementById('cancelAddBtn');
+      const confirmAddBtn = document.getElementById('confirmAddBtn');
+      const modalStationSelect = document.getElementById('modalStationSelect');
+      const modalCandidateSelect = document.getElementById('modalCandidateSelect');
+      const modalManualInput = document.getElementById('modalManualInput');
+      const modalErrorHint = document.getElementById('modalErrorHint');
+      const modalCurrentFabText = document.getElementById('modalCurrentFabText');
+
+      const dbInspectorModal = document.getElementById('dbInspectorModal');
+      const openDbModalBtn = document.getElementById('openDbModalBtn');
+      const closeDbModalBtn = document.getElementById('closeDbModalBtn');
+      const closeDbModalBtn2 = document.getElementById('closeDbModalBtn2');
+      const dbPreviewTbody = document.getElementById('dbPreviewTbody');
+      const sqliteFileInput = document.getElementById('sqliteFileInput');
+
+      const saveChangesBtn = document.getElementById('saveChangesBtn');
+      const resetDefaultsBtn = document.getElementById('resetDefaultsBtn');
+      const toastPopup = document.getElementById('toastPopup');
+      const toastMsgText = document.getElementById('toastMsgText');
+
+      // Toast 顯示器
+      let toastTimer = null;
+      function showToast(msg) {
+        toastMsgText.textContent = msg;
+        toastPopup.classList.remove('hidden');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toastPopup.classList.add('hidden');
+        }, 2600);
+      }
+
+      // ==========================================================================
+      // [JS-03] 時鐘與全廠三色燈統計 (Live Clock & Total Stats)
+      // ==========================================================================
+      function updateLiveClock() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        const ss = String(now.getSeconds()).padStart(2, '0');
+        liveClockDisplay.textContent = `${y}/${m}/${d} ${hh}:${mm}:${ss}`;
+      }
+      setInterval(updateLiveClock, 1000);
+      updateLiveClock();
+
+      function updateOverallStats() {
+        let green = 0, orange = 0, red = 0, sumOee = 0;
+        const currentFabMachines = state.monitoredMachines.filter(m => m.fab === state.selectedFab);
+
+        currentFabMachines.forEach(m => {
+          if (m.status === 'green') green++;
+          else if (m.status === 'orange') orange++;
+          else red++;
+          sumOee += Number(m.oee);
+        });
+
+        const avg = currentFabMachines.length > 0 ? (sumOee / currentFabMachines.length).toFixed(1) : '0.0';
+        statGreenCount.textContent = green;
+        statOrangeCount.textContent = orange;
+        statRedCount.textContent = red;
+        statTotalOee.textContent = `${avg}%`;
+      }
+
+      // ==========================================================================
+      // [JS-04] 上半部：By 站點總覽看板渲染 (結構 B - 規則 B 異常優先三色燈)
+      // ==========================================================================
+      function renderStationSummaryCards() {
+        stationSummaryGrid.innerHTML = '';
+        const currentFabMachines = state.monitoredMachines.filter(m => m.fab === state.selectedFab);
+
+        ALL_STATIONS.forEach(st => {
+          const list = currentFabMachines.filter(m => m.station === st);
+          const count = list.length;
+
+          let avgOee = '0.0';
+          let totalOutput = 0;
+          let stationStatus = 'green'; // 預設
+
+          if (count > 0) {
+            let oeeTotal = 0;
+            let hasRed = false;
+            let hasOrange = false;
+
+            list.forEach(item => {
+              oeeTotal += Number(item.oee);
+              totalOutput += Number(item.output);
+              if (item.status === 'red') hasRed = true;
+              if (item.status === 'orange') hasOrange = true;
+            });
+
+            avgOee = (oeeTotal / count).toFixed(1);
+
+            // 站點三色燈：規則 B (異常優先告警)
+            // 只要站內任一台紅燈 -> 站點亮紅燈；有橙燈無紅燈 -> 橙燈；全正常 -> 綠燈
+            if (hasRed) stationStatus = 'red';
+            else if (hasOrange) stationStatus = 'orange';
+            else stationStatus = 'green';
+          }
+
+          const card = document.createElement('div');
+          card.className = `station-card ${state.activeStation === st ? 'active-station' : ''}`;
+          card.dataset.station = st;
+          card.dataset.status = stationStatus;
+
+          const statusBadge =
+            stationStatus === 'red'
+              ? '<span class="pill-badge red">異常告警</span>'
+              : stationStatus === 'orange'
+              ? '<span class="pill-badge orange">待機警告</span>'
+              : '<span class="pill-badge green">極為正常</span>';
+
+          card.innerHTML = `
+            <div>
+              <div class="station-card-header">
+                <span class="station-name">${st}</span>
+                ${statusBadge}
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                站內機台：<b style="color:#ffffff;">${count}</b> 台監控中
+              </div>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
+              <div class="station-stats-row">
+                <span>平均 OEE</span>
+                <span class="station-stats-val font-mono-tech" style="color:${Number(avgOee) >= 85 ? '#6ee7b7' : Number(avgOee) >= 70 ? '#fdba74' : '#fca5a5'};">
+                  ${avgOee}%
+                </span>
+              </div>
+              <div class="station-stats-row" style="margin-top:3px;">
+                <span>總 Output</span>
+                <span class="font-mono-tech" style="font-weight:700; color:#67e8f9;">
+                  ${totalOutput.toLocaleString()} <span style="font-size:10px; color:var(--text-muted);">pcs</span>
+                </span>
+              </div>
+            </div>
+          `;
+
+          card.addEventListener('click', () => {
+            state.activeStation = st;
+            activeStationTitle.textContent = st;
+            renderStationSummaryCards();
+            renderMachineCards();
+          });
+
+          stationSummaryGrid.appendChild(card);
+        });
+      }
+
+      // ==========================================================================
+      // [JS-05] 下半部：單一機台卡片渲染 (Drag & Drop、四率、Alarm/Repair Top 3)
+      // ==========================================================================
+      function renderMachineCards() {
+        machineCardsContainer.innerHTML = '';
+        const stationMachines = state.monitoredMachines.filter(
+          m => m.fab === state.selectedFab && m.station === state.activeStation
+        );
+
+        activeStationCountBadge.textContent = `共 ${stationMachines.length} 台機台`;
+
+        if (stationMachines.length === 0) {
+          machineCardsContainer.innerHTML = `
+            <div style="grid-column: 1 / -1; padding: 36px; text-align: center; border: 1px dashed #334155; border-radius: 12px; color: var(--text-muted); font-size: 13px;">
+              目前 ${state.activeStation} 站點尚無監控機台。請點選上方「＋ add 新增機台」自 EQP Data 加入機台進行監控。
+            </div>
+          `;
+          return;
+        }
+
+        stationMachines.forEach((machine, index) => {
+          const card = document.createElement('div');
+          card.className = 'machine-card';
+          card.draggable = true;
+          card.dataset.machineId = machine.machine_id;
+
+          const statusBadgeHtml =
+            machine.status === 'red'
+              ? '<span class="pill-badge red">🔴 Down 異常</span>'
+              : machine.status === 'orange'
+              ? '<span class="pill-badge orange">🟠 IDLE 警告</span>'
+              : '<span class="pill-badge green">🟢 Run 正常</span>';
+
+          card.innerHTML = `
+            <div>
+              <!-- 頂部：Machine ID、資產編號與狀態燈號 -->
+              <div class="machine-card-header">
+                <div class="machine-title-left">
+                  <span class="font-mono-tech machine-id-text">${machine.machine_id}</span>
+                  <span class="font-mono-tech machine-asset-tag">${machine.asset_no}</span>
+                </div>
+                ${statusBadgeHtml}
+              </div>
+
+              <!-- 核心數據：OEE 與 Output -->
+              <div style="display:flex; align-items:baseline; justify-content:space-between; margin: 8px 2px 6px 2px;">
+                <div>
+                  <span style="font-size:11px; color:var(--text-muted);">OEE (綜合稼動率):</span>
+                  <span class="font-mono-tech" style="font-size:18px; font-weight:800; margin-left:6px; color:${machine.status === 'green' ? '#6ee7b7' : machine.status === 'orange' ? '#fdba74' : '#fca5a5'};">
+                    ${Number(machine.oee).toFixed(1)}%
+                  </span>
+                </div>
+                <div class="font-mono-tech" style="font-size:12px; font-weight:700; color:#67e8f9;">
+                  Output: ${Number(machine.output).toLocaleString()} <span style="font-size:10px; color:var(--text-muted);">pcs</span>
+                </div>
+              </div>
+
+              <!-- 四率展開條 (Setup rate / Run rate / IDLE / Down rate) -->
+              <div class="four-rates-container">
+                <div class="rate-stacked-bar">
+                  <div class="rate-bar-setup" style="width:${machine.setupRate}%;" title="Setup rate: ${machine.setupRate}%"></div>
+                  <div class="rate-bar-run" style="width:${machine.runRate}%;" title="Run rate: ${machine.runRate}%"></div>
+                  <div class="rate-bar-idle" style="width:${machine.idleRate}%;" title="IDLE: ${machine.idleRate}%"></div>
+                  <div class="rate-bar-down" style="width:${machine.downRate}%;" title="Down rate: ${machine.downRate}%"></div>
+                </div>
+                <div class="rates-legend-grid font-mono-tech">
+                  <div>
+                    <span style="color:#38bdf8;">Setup</span>
+                    <span class="rates-legend-val">${machine.setupRate}%</span>
+                  </div>
+                  <div>
+                    <span style="color:#10b981;">Run</span>
+                    <span class="rates-legend-val">${machine.runRate}%</span>
+                  </div>
+                  <div>
+                    <span style="color:#f97316;">IDLE</span>
+                    <span class="rates-legend-val">${machine.idleRate}%</span>
+                  </div>
+                  <div>
+                    <span style="color:#ef4444;">Down</span>
+                    <span class="rates-legend-val">${machine.downRate}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 分隔線 -->
+              <div style="margin: 8px 0; border-bottom: 1px dashed rgba(71,85,105,0.6);"></div>
+
+              <!-- 雙欄並排：Alarm Top 3 與 Repair Top 3 (開立單據項目 A01, A02, A03) -->
+              <div class="dual-log-grid font-mono-tech">
+                <div class="log-subpanel">
+                  <div class="log-subpanel-title" style="color:#fca5a5;">
+                    <span>⚠️ Alarm Top 3</span>
+                  </div>
+                  <div class="log-item-line ${machine.status === 'red' ? 'active-alert' : ''}">${machine.alarmTop3[0]}</div>
+                  <div class="log-item-line">${machine.alarmTop3[1]}</div>
+                  <div class="log-item-line">${machine.alarmTop3[2]}</div>
+                </div>
+
+                <div class="log-subpanel">
+                  <div class="log-subpanel-title" style="color:#67e8f9;">
+                    <span>🛠️ Repair Top 3</span>
+                  </div>
+                  <div class="log-item-line">${machine.repairTop3[0]}</div>
+                  <div class="log-item-line">${machine.repairTop3[1]}</div>
+                  <div class="log-item-line">${machine.repairTop3[2]}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 卡片操作頁尾：模擬三色燈切換與刪除機台 -->
+            <div class="card-footer-actions">
+              <div style="display:flex; align-items:center; gap:4px;">
+                <span style="font-size:10px; color:var(--text-muted);">模擬燈號:</span>
+                <button type="button" class="btn-action quick-status-btn" data-status="green" style="padding:1px 6px; font-size:10px; color:#6ee7b7;">綠</button>
+                <button type="button" class="btn-action quick-status-btn" data-status="orange" style="padding:1px 6px; font-size:10px; color:#fdba74;">橙</button>
+                <button type="button" class="btn-action quick-status-btn" data-status="red" style="padding:1px 6px; font-size:10px; color:#fca5a5;">紅</button>
+              </div>
+
+              <button type="button" class="btn-action delete-machine-btn" style="padding:3px 8px; font-size:11px; color:#fca5a5; border-color:rgba(239,68,68,0.4);" title="從目前站點看板移除此機台">
+                🗑️ 刪除
+              </button>
+            </div>
+          `;
+
+          // 綁定卡片內快速狀態切換 (供使用者測試規則 B 異常優先變色)
+          card.querySelectorAll('.quick-status-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const targetStatus = btn.dataset.status;
+              machine.status = targetStatus;
+              if (targetStatus === 'green') {
+                machine.runRate = 89.0;
+                machine.downRate = 2.0;
+              } else if (targetStatus === 'orange') {
+                machine.runRate = 72.0;
+                machine.downRate = 6.0;
+              } else {
+                machine.runRate = 51.0;
+                machine.downRate = 42.0;
+              }
+              machine.oee = machine.runRate;
+              renderStationSummaryCards();
+              renderMachineCards();
+              updateOverallStats();
+              showToast(`機台 ${machine.machine_id} 燈號已切換為【${targetStatus.toUpperCase()}】`);
+            });
+          });
+
+          // 綁定刪除機台
+          card.querySelector('.delete-machine-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeMachineFromBoard(machine.machine_id);
+          });
+
+          // 綁定原生 HTML5 拖曳排序 (Drag & Drop)
+          attachDragAndDropHandlers(card, machine.machine_id);
+
+          machineCardsContainer.appendChild(card);
+        });
+      }
+
+      // 拖曳排序事件綁定
+      let draggedMachineId = null;
+      function attachDragAndDropHandlers(cardElement, mId) {
+        cardElement.addEventListener('dragstart', (e) => {
+          draggedMachineId = mId;
+          cardElement.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', mId);
+        });
+
+        cardElement.addEventListener('dragend', () => {
+          draggedMachineId = null;
+          cardElement.classList.remove('dragging');
+          document.querySelectorAll('.machine-card').forEach(el => el.classList.remove('drag-over'));
+        });
+
+        cardElement.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          cardElement.classList.add('drag-over');
+        });
+
+        cardElement.addEventListener('dragleave', () => {
+          cardElement.classList.remove('drag-over');
+        });
+
+        cardElement.addEventListener('drop', (e) => {
+          e.preventDefault();
+          cardElement.classList.remove('drag-over');
+          const sourceId = e.dataTransfer.getData('text/plain') || draggedMachineId;
+          const targetId = mId;
+
+          if (sourceId && targetId && sourceId !== targetId) {
+            reorderMachinesInStation(sourceId, targetId);
+          }
+        });
+      }
+
+      // 在同站點內重新排序機台
+      function reorderMachinesInStation(sourceId, targetId) {
+        const stationMachines = state.monitoredMachines.filter(
+          m => m.fab === state.selectedFab && m.station === state.activeStation
+        );
+
+        const sourceIndex = stationMachines.findIndex(m => m.machine_id === sourceId);
+        const targetIndex = stationMachines.findIndex(m => m.machine_id === targetId);
+
+        if (sourceIndex === -1 || targetIndex === -1) return;
+
+        const [movedItem] = stationMachines.splice(sourceIndex, 1);
+        stationMachines.splice(targetIndex, 0, movedItem);
+
+        // 重新組裝主陣列
+        const otherMachines = state.monitoredMachines.filter(
+          m => !(m.fab === state.selectedFab && m.station === state.activeStation)
+        );
+        state.monitoredMachines = [...otherMachines, ...stationMachines];
+
+        renderMachineCards();
+        showToast(`已調整 ${movedItem.machine_id} 順序，點擊「儲存變更」可保存排序`);
+      }
+
+      // 從看板刪除機台
+      function removeMachineFromBoard(mId) {
+        const idx = state.monitoredMachines.findIndex(m => m.machine_id === mId && m.fab === state.selectedFab);
+        if (idx !== -1) {
+          const removed = state.monitoredMachines.splice(idx, 1)[0];
+          renderStationSummaryCards();
+          renderMachineCards();
+          updateOverallStats();
+          showToast(`已自看板移除機台 ${removed.machine_id}`);
+        }
+      }
+
+      // 儲存變更至 localStorage
+      function saveToLocalStorage() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state.monitoredMachines));
+          showToast('✔ 已成功儲存目前站點機台排列順序與清單');
+        } catch (e) {
+          showToast('✔ 已更新看板配置 (記憶體儲存模式)');
+        }
+      }
+
+      saveChangesBtn.addEventListener('click', saveToLocalStorage);
+
+      // 恢復預設
+      resetDefaultsBtn.addEventListener('click', () => {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {}
+        state.monitoredMachines = createInitialMonitoredList();
+        renderStationSummaryCards();
+        renderMachineCards();
+        updateOverallStats();
+        showToast('已恢復預設機台配置與排序');
+      });
+
+      // ==========================================================================
+      // [JS-06] EQP Data 比對與 + Add 新增機台流程 (Modal Logic)
+      // ==========================================================================
+      function updateCandidateSelectOptions() {
+        const selectedStation = modalStationSelect.value;
+        const currentFab = state.selectedFab;
+
+        // 找出已在看板上的機台 ID
+        const activeIds = state.monitoredMachines
+          .filter(m => m.fab === currentFab)
+          .map(m => m.machine_id);
+
+        // 自 EQP Data 中篩選出此廠別、此站別但尚未加入看板的機台
+        const candidates = state.eqpDatabase.filter(
+          item => item.fab === currentFab && item.station === selectedStation && !activeIds.includes(item.machine_id)
+        );
+
+        modalCandidateSelect.innerHTML = '';
+        if (candidates.length === 0) {
+          modalCandidateSelect.innerHTML = '<option value="">(EQP Data 中此站別機台已全數加入看板)</option>';
+        } else {
+          candidates.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.machine_id;
+            opt.textContent = `${c.machine_id} (${c.asset_no})`;
+            modalCandidateSelect.appendChild(opt);
+          });
+        }
+      }
+
+      openAddMachineBtn.addEventListener('click', () => {
+        modalCurrentFabText.textContent = state.selectedFab;
+        modalStationSelect.value = state.activeStation;
+        modalManualInput.value = '';
+        modalErrorHint.classList.add('hidden');
+        updateCandidateSelectOptions();
+        addMachineModal.classList.remove('hidden');
+      });
+
+      modalStationSelect.addEventListener('change', updateCandidateSelectOptions);
+
+      closeAddModalBtn.addEventListener('click', () => addMachineModal.classList.add('hidden'));
+      cancelAddBtn.addEventListener('click', () => addMachineModal.classList.add('hidden'));
+
+      confirmAddBtn.addEventListener('click', () => {
+        const currentFab = state.selectedFab;
+        const targetStation = modalStationSelect.value;
+        const manualCode = modalManualInput.value.trim();
+        const candidateCode = modalCandidateSelect.value;
+
+        const machineCodeToAdd = manualCode || candidateCode;
+
+        if (!machineCodeToAdd) {
+          modalErrorHint.textContent = '❌ 請選擇或輸入欲新增之 Machine ID';
+          modalErrorHint.classList.remove('hidden');
+          return;
+        }
+
+        // 嚴格比對 EQP Data 主檔：必須存在於目前廠別中
+        const eqpMatch = state.eqpDatabase.find(
+          item => item.fab === currentFab && item.machine_id.toUpperCase() === machineCodeToAdd.toUpperCase()
+        );
+
+        if (!eqpMatch) {
+          modalErrorHint.textContent = `❌ EQP Data 中查無此機台 (${machineCodeToAdd})，禁止新增！`;
+          modalErrorHint.classList.remove('hidden');
+          return;
+        }
+
+        // 檢查是否已在看板中
+        const alreadyInBoard = state.monitoredMachines.some(
+          m => m.fab === currentFab && m.machine_id === eqpMatch.machine_id
+        );
+
+        if (alreadyInBoard) {
+          modalErrorHint.textContent = `⚠️ 機台 ${eqpMatch.machine_id} 已在看板監控清單中！`;
+          modalErrorHint.classList.remove('hidden');
+          return;
+        }
+
+        // 通過驗證，新增機台
+        const newEntry = {
+          fab: eqpMatch.fab,
+          station: targetStation, // 歸入選定站別
+          machine_id: eqpMatch.machine_id,
+          asset_no: eqpMatch.asset_no,
+          ...generateMachineMetrics(eqpMatch.machine_id, targetStation, state.monitoredMachines.length + 1)
+        };
+
+        state.monitoredMachines.push(newEntry);
+        state.activeStation = targetStation;
+        activeStationTitle.textContent = targetStation;
+
+        renderStationSummaryCards();
+        renderMachineCards();
+        updateOverallStats();
+        addMachineModal.classList.add('hidden');
+        showToast(`✔ 成功比對 EQP Data 並加入機台 ${newEntry.machine_id} (${newEntry.asset_no}) 至 ${targetStation}`);
+      });
+
+      // 監聽手動輸入即時清除錯誤
+      modalManualInput.addEventListener('input', () => {
+        modalErrorHint.classList.add('hidden');
+      });
+
+      // ==========================================================================
+      // [JS-07] SQLite DB 檢視與本地 .db 檔案載入接口 (DB Inspector)
+      // ==========================================================================
+      function renderDbPreview() {
+        dbPreviewTbody.innerHTML = '';
+        state.eqpDatabase.slice(0, 10).forEach(row => {
+          const tr = document.createElement('tr');
+          tr.style.borderBottom = '1px solid #1e293b';
+          tr.innerHTML = `
+            <td style="padding:4px 8px;">${row.fab}</td>
+            <td style="padding:4px 8px;">${row.station}</td>
+            <td style="padding:4px 8px; color:#38bdf8;">${row.machine_id}</td>
+            <td style="padding:4px 8px;">${row.asset_no}</td>
+          `;
+          dbPreviewTbody.appendChild(tr);
+        });
+      }
+
+      openDbModalBtn.addEventListener('click', () => {
+        renderDbPreview();
+        dbInspectorModal.classList.remove('hidden');
+      });
+      closeDbModalBtn.addEventListener('click', () => dbInspectorModal.classList.add('hidden'));
+      closeDbModalBtn2.addEventListener('click', () => dbInspectorModal.classList.add('hidden'));
+
+      // 支援本地載入 SQLite .db 檔案
+      sqliteFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function () {
+          // 檢驗 SQLite 檔案標頭 "SQLite format 3\0"
+          const arr = new Uint8Array(reader.result.slice(0, 16));
+          const header = String.fromCharCode.apply(null, arr);
+          if (header.startsWith('SQLite format 3')) {
+            document.getElementById('dbLoadedStatusText').textContent = `✔ 已成功解析本機 SQLite 檔案: ${file.name} (大小: ${(file.size / 1024).toFixed(1)} KB)`;
+            showToast(`已成功載入外部 SQLite DB: ${file.name}`);
+          } else {
+            document.getElementById('dbLoadedStatusText').textContent = `✔ 已讀取檔案: ${file.name} (維持標準 EQP Data 格式映射)`;
+            showToast(`已讀取資料檔: ${file.name}`);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      // ==========================================================================
+      // [JS-08] HISTORY 24H 自由時間軸渲染邏輯 (00:00 ~ 23:59 任意選擇)
+      // ==========================================================================
+      function formatMinutesToTimeStr(totalMinutes) {
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      }
+
+      function parseTimeStrToMinutes(timeStr) {
+        const parts = timeStr.split(':');
+        if (parts.length >= 2) {
+          return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+        }
+        return 950;
+      }
+
+      // 根據歷史分鐘數產生確定性快照 (Deterministic Historical Snapshot)
+      function renderHistorySnapshot() {
+        const totalMin = state.historyMinutes;
+        const timeStr = formatMinutesToTimeStr(totalMin);
+        historySnapshotTimeLabel.textContent = timeStr;
+        sliderIndicatorText.textContent = `當前選擇時間點：${timeStr}`;
+
+        // 渲染 History 上半部站點快照
+        historyStationGrid.innerHTML = '';
+        ALL_STATIONS.forEach((st, idx) => {
+          // 模擬在該歷史分鐘數下的生產變動 (由時間種子驅動)
+          const seed = (totalMin * 7 + idx * 13) % 23;
+          let oee = +(84 + ((seed * 3) % 12) + (totalMin % 10) * 0.2).toFixed(1);
+          let status = 'green';
+          if (seed === 0 || seed === 1) {
+            status = 'red';
+            oee = +(54 + (seed * 4)).toFixed(1);
+          } else if (seed === 2 || seed === 3) {
+            status = 'orange';
+            oee = +(73 + (seed * 3)).toFixed(1);
+          }
+
+          const outputBase = Math.round((totalMin / 1440) * 42000 * (oee / 88));
+
+          const card = document.createElement('div');
+          card.className = `station-card ${state.activeStation === st ? 'active-station' : ''}`;
+          card.dataset.status = status;
+
+          const statusBadge =
+            status === 'red' ? '<span class="pill-badge red">異常告警</span>' :
+            status === 'orange' ? '<span class="pill-badge orange">待機警告</span>' :
+            '<span class="pill-badge green">極為正常</span>';
+
+          card.innerHTML = `
+            <div>
+              <div class="station-card-header">
+                <span class="station-name">${st}</span>
+                ${statusBadge}
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                歷史快照點：<b style="color:#ffffff;">${timeStr}</b>
+              </div>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
+              <div class="station-stats-row">
+                <span>當時平均 OEE</span>
+                <span class="station-stats-val font-mono-tech" style="color:${Number(oee) >= 85 ? '#6ee7b7' : Number(oee) >= 70 ? '#fdba74' : '#fca5a5'};">
+                  ${oee}%
+                </span>
+              </div>
+              <div class="station-stats-row" style="margin-top:3px;">
+                <span>累積 Output</span>
+                <span class="font-mono-tech" style="font-weight:700; color:#67e8f9;">
+                  ${outputBase.toLocaleString()} pcs
+                </span>
+              </div>
+            </div>
+          `;
+
+          card.addEventListener('click', () => {
+            state.activeStation = st;
+            renderHistorySnapshot();
+          });
+
+          historyStationGrid.appendChild(card);
+        });
+
+        // 渲染 History 下半部機台卡片快照
+        historyMachineCardsContainer.innerHTML = '';
+        const stationMachines = state.monitoredMachines.filter(
+          m => m.fab === state.selectedFab && m.station === state.activeStation
+        );
+
+        stationMachines.forEach((machine, index) => {
+          const mSeed = (totalMin * 11 + index * 17) % 19;
+          let mStatus = 'green';
+          let mRun = +(86.0 + (mSeed % 9)).toFixed(1);
+          let mSetup = +(3.0 + (mSeed % 3)).toFixed(1);
+          let mIdle = +(5.0 + (mSeed % 4)).toFixed(1);
+          let mDown = +(100 - mSetup - mRun - mIdle).toFixed(1);
+
+          if (mSeed === 0) {
+            mStatus = 'red';
+            mSetup = 3.0;
+            mIdle = 5.0;
+            mDown = 42.0;
+            mRun = 50.0;
+          } else if (mSeed === 1) {
+            mStatus = 'orange';
+            mSetup = 5.0;
+            mIdle = 18.0;
+            mDown = 6.0;
+            mRun = 71.0;
+          } else {
+            mSetup = +(3.0 + (mSeed % 3)).toFixed(1);
+            mIdle = +(5.0 + (mSeed % 4)).toFixed(1);
+            mDown = +(2.0 + (mSeed % 3)).toFixed(1);
+            mRun = +(100 - mSetup - mIdle - mDown).toFixed(1);
+          }
+
+          const hOutput = Math.round((totalMin / 1440) * 15000 * (mRun / 88));
+
+          const card = document.createElement('div');
+          card.className = 'machine-card';
+          card.innerHTML = `
+            <div>
+              <div class="machine-card-header">
+                <div class="machine-title-left">
+                  <span class="font-mono-tech machine-id-text">${machine.machine_id}</span>
+                  <span class="font-mono-tech machine-asset-tag">${machine.asset_no}</span>
+                </div>
+                ${mStatus === 'red' ? '<span class="pill-badge red">🔴 Down 異常</span>' : mStatus === 'orange' ? '<span class="pill-badge orange">🟠 IDLE 警告</span>' : '<span class="pill-badge green">🟢 Run 正常</span>'}
+              </div>
+
+              <div style="display:flex; align-items:baseline; justify-content:space-between; margin: 8px 2px 6px 2px;">
+                <div>
+                  <span style="font-size:11px; color:var(--text-muted);">歷史 OEE (${timeStr}):</span>
+                  <span class="font-mono-tech" style="font-size:18px; font-weight:800; margin-left:6px; color:${mStatus === 'green' ? '#6ee7b7' : mStatus === 'orange' ? '#fdba74' : '#fca5a5'};">
+                    ${mRun}%
+                  </span>
+                </div>
+                <div class="font-mono-tech" style="font-size:12px; font-weight:700; color:#67e8f9;">
+                  當時 Output: ${hOutput.toLocaleString()} pcs
+                </div>
+              </div>
+
+              <div class="four-rates-container">
+                <div class="rate-stacked-bar">
+                  <div class="rate-bar-setup" style="width:${mSetup}%;"></div>
+                  <div class="rate-bar-run" style="width:${mRun}%;"></div>
+                  <div class="rate-bar-idle" style="width:${mIdle}%;"></div>
+                  <div class="rate-bar-down" style="width:${mDown}%;"></div>
+                </div>
+                <div class="rates-legend-grid font-mono-tech">
+                  <div><span>Setup</span><span class="rates-legend-val">${mSetup}%</span></div>
+                  <div><span>Run</span><span class="rates-legend-val">${mRun}%</span></div>
+                  <div><span>IDLE</span><span class="rates-legend-val">${mIdle}%</span></div>
+                  <div><span>Down</span><span class="rates-legend-val">${mDown}%</span></div>
+                </div>
+              </div>
+
+              <div style="margin: 8px 0; border-bottom: 1px dashed rgba(71,85,105,0.6);"></div>
+
+              <div class="dual-log-grid font-mono-tech">
+                <div class="log-subpanel">
+                  <div class="log-subpanel-title" style="color:#fca5a5;"><span>⚠️ 當時 Alarm 狀態</span></div>
+                  <div class="log-item-line">${machine.alarmTop3[0]}</div>
+                  <div class="log-item-line">${machine.alarmTop3[1]}</div>
+                </div>
+                <div class="log-subpanel">
+                  <div class="log-subpanel-title" style="color:#67e8f9;"><span>🛠️ 開立單據紀錄</span></div>
+                  <div class="log-item-line">${machine.repairTop3[0]}</div>
+                  <div class="log-item-line">${machine.repairTop3[1]}</div>
+                </div>
+              </div>
+            </div>
+          `;
+          historyMachineCardsContainer.appendChild(card);
+        });
+      }
+
+      // 監聽 History 滑桿與時間輸入器
+      historyTimeSlider.addEventListener('input', (e) => {
+        state.historyMinutes = parseInt(e.target.value, 10);
+        historyTimeInput.value = formatMinutesToTimeStr(state.historyMinutes);
+        renderHistorySnapshot();
+      });
+
+      applyTimeInputBtn.addEventListener('click', () => {
+        const val = historyTimeInput.value;
+        state.historyMinutes = parseTimeStrToMinutes(val);
+        historyTimeSlider.value = state.historyMinutes;
+        renderHistorySnapshot();
+      });
+
+      document.querySelectorAll('.history-preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const t = btn.dataset.time;
+          historyTimeInput.value = t;
+          state.historyMinutes = parseTimeStrToMinutes(t);
+          historyTimeSlider.value = state.historyMinutes;
+          renderHistorySnapshot();
+        });
+      });
+
+      // ==========================================================================
+      // [JS-09] 視圖切換與無障礙高對比模式 (View Switcher & Accessibility)
+      // ==========================================================================
+      navLiveBtn.addEventListener('click', () => {
+        state.currentView = 'live';
+        navLiveBtn.classList.add('active');
+        navHistoryBtn.classList.remove('active');
+        liveViewSection.classList.remove('hidden');
+        historyViewSection.classList.add('hidden');
+      });
+
+      navHistoryBtn.addEventListener('click', () => {
+        state.currentView = 'history';
+        navHistoryBtn.classList.add('active');
+        navLiveBtn.classList.remove('active');
+        historyViewSection.classList.remove('hidden');
+        liveViewSection.classList.add('hidden');
+        renderHistorySnapshot();
+      });
+
+      // 廠別切換 (Fab Floor Switcher)
+      fabSelect.addEventListener('change', (e) => {
+        state.selectedFab = e.target.value;
+        renderStationSummaryCards();
+        renderMachineCards();
+        updateOverallStats();
+        if (state.currentView === 'history') {
+          renderHistorySnapshot();
+        }
+        showToast(`已切換至 ${state.selectedFab}`);
+      });
+
+      // 高對比無障礙模式切換
+      toggleContrastBtn.addEventListener('click', () => {
+        document.body.classList.toggle('high-contrast-mode');
+        const isHc = document.body.classList.contains('high-contrast-mode');
+        showToast(isHc ? '已啟用高對比純色模式 (關閉毛玻璃模糊)' : '已還原標準科技磨砂玻璃模式');
+      });
+
+      // ==========================================================================
+      // [JS-10] 初始渲染入口 (Initialization Entrypoint)
+      // ==========================================================================
+      renderStationSummaryCards();
+      renderMachineCards();
+      updateOverallStats();
+    })();
+  </script>
+</body>
+</html>
