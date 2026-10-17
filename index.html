@@ -390,6 +390,9 @@
       position: relative;
       cursor: grab;
       transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      overflow: hidden;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .machine-card:hover {
@@ -483,28 +486,40 @@
       margin-top: 1px;
     }
 
-    /* Alarm Top 3 與 Repair Top 3 雙欄並排 */
+    /* Alarm Top 3 與 Repair Top 3 雙欄並排 (防破版、高質感工控 UI) */
     .dual-log-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
       font-size: 11px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .log-subpanel {
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(51, 65, 85, 0.7);
-      border-radius: 6px;
+      border-radius: 7px;
       padding: 6px 8px;
+      min-width: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
 
     .log-subpanel-title {
       font-size: 11px;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 3px;
     }
 
     .log-item-line {
@@ -513,12 +528,106 @@
       overflow: hidden;
       text-overflow: ellipsis;
       color: var(--text-muted);
-      padding: 1.5px 0;
+      padding: 2px 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+      cursor: default;
+    }
+
+    .log-item-line:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 3px;
     }
 
     .log-item-line.active-alert {
       color: #fca5a5;
       font-weight: 600;
+    }
+
+    /* 單據與告警高對比標籤晶片 */
+    .repair-code-tag {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 3px;
+      background: rgba(6, 182, 212, 0.18);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      flex-shrink: 0;
+      line-height: 1.2;
+    }
+
+    .repair-desc-text {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #cbd5e1;
+    }
+
+    .repair-status-tag {
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .repair-status-tag.status-done {
+      background: rgba(16, 185, 129, 0.16);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .repair-status-tag.status-progress {
+      background: rgba(249, 115, 22, 0.18);
+      color: #fdba74;
+      border: 1px solid rgba(249, 115, 22, 0.4);
+    }
+
+    .repair-status-tag.status-dispatched {
+      background: rgba(59, 130, 246, 0.18);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .alarm-desc-text {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .alarm-tag {
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .alarm-tag.tag-red {
+      background: rgba(239, 68, 68, 0.22);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+
+    .alarm-tag.tag-orange {
+      background: rgba(249, 115, 22, 0.18);
+      color: #fdba74;
+      border: 1px solid rgba(249, 115, 22, 0.4);
+    }
+
+    .alarm-tag.tag-green {
+      background: rgba(16, 185, 129, 0.14);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
     .card-footer-actions {
@@ -1317,6 +1426,54 @@
       // ==========================================================================
       // [JS-05] 下半部：單一機台卡片渲染 (Drag & Drop、四率、Alarm/Repair Top 3)
       // ==========================================================================
+      // 格式化 Repair 單據項目 (工控單據 A01, A02... 獨立晶片與狀態標籤，防文字溢出破版)
+      function renderRepairItemHtml(itemStr) {
+        if (!itemStr) return '';
+        const match = itemStr.match(/^(?:\d+\.\s*)?\[(.*?)\]\s*(.*?)\s*(?:\((.*?)\))?$/);
+        if (match) {
+          const code = match[1] || 'REQ';
+          const desc = match[2] || itemStr;
+          const status = match[3] || '';
+          const statusClass = status === '作業中' ? 'status-progress' : status === '已派工' ? 'status-dispatched' : 'status-done';
+          const statusHtml = status ? `<span class="repair-status-tag ${statusClass}">${status}</span>` : '';
+          return `
+            <div class="log-item-line" title="${itemStr}">
+              <span class="repair-code-tag">${code}</span>
+              <span class="repair-desc-text font-mono-tech">${desc}</span>
+              ${statusHtml}
+            </div>
+          `;
+        }
+        return `<div class="log-item-line font-mono-tech" title="${itemStr}"><span class="repair-desc-text">${itemStr}</span></div>`;
+      }
+
+      // 格式化 Alarm 告警項目 (標籤晶片化與溢出省略保護)
+      function renderAlarmItemHtml(itemStr, isMachineRed) {
+        if (!itemStr) return '';
+        const match = itemStr.match(/^(.*?)\s*\[(.*?)\]$/);
+        if (match) {
+          const desc = match[1];
+          const tag = match[2];
+          let tagClass = 'tag-green';
+          if (tag.includes('觸發') || tag.includes('3次') || tag.includes('Down')) {
+            tagClass = 'tag-red';
+          } else if (tag.includes('警報') || tag.includes('微警報') || tag.includes('Warn')) {
+            tagClass = 'tag-orange';
+          }
+          return `
+            <div class="log-item-line ${tagClass === 'tag-red' ? 'active-alert' : ''}" title="${itemStr}">
+              <span class="alarm-desc-text font-mono-tech">${desc}</span>
+              <span class="alarm-tag ${tagClass}">${tag}</span>
+            </div>
+          `;
+        }
+        return `
+          <div class="log-item-line ${isMachineRed ? 'active-alert' : ''}" title="${itemStr}">
+            <span class="alarm-desc-text font-mono-tech">${itemStr}</span>
+          </div>
+        `;
+      }
+
       function renderMachineCards() {
         machineCardsContainer.innerHTML = '';
         const stationMachines = state.monitoredMachines.filter(
@@ -1403,23 +1560,25 @@
               <div style="margin: 8px 0; border-bottom: 1px dashed rgba(71,85,105,0.6);"></div>
 
               <!-- 雙欄並排：Alarm Top 3 與 Repair Top 3 (開立單據項目 A01, A02, A03) -->
-              <div class="dual-log-grid font-mono-tech">
+              <div class="dual-log-grid">
                 <div class="log-subpanel">
                   <div class="log-subpanel-title" style="color:#fca5a5;">
                     <span>⚠️ Alarm Top 3</span>
+                    <span style="font-size:9px; color:var(--text-muted); font-weight:normal;">實時告警</span>
                   </div>
-                  <div class="log-item-line ${machine.status === 'red' ? 'active-alert' : ''}">${machine.alarmTop3[0]}</div>
-                  <div class="log-item-line">${machine.alarmTop3[1]}</div>
-                  <div class="log-item-line">${machine.alarmTop3[2]}</div>
+                  ${renderAlarmItemHtml(machine.alarmTop3[0], machine.status === 'red')}
+                  ${renderAlarmItemHtml(machine.alarmTop3[1], false)}
+                  ${renderAlarmItemHtml(machine.alarmTop3[2], false)}
                 </div>
 
                 <div class="log-subpanel">
                   <div class="log-subpanel-title" style="color:#67e8f9;">
                     <span>🛠️ Repair Top 3</span>
+                    <span style="font-size:9px; color:var(--text-muted); font-weight:normal;">維修單據</span>
                   </div>
-                  <div class="log-item-line">${machine.repairTop3[0]}</div>
-                  <div class="log-item-line">${machine.repairTop3[1]}</div>
-                  <div class="log-item-line">${machine.repairTop3[2]}</div>
+                  ${renderRepairItemHtml(machine.repairTop3[0])}
+                  ${renderRepairItemHtml(machine.repairTop3[1])}
+                  ${renderRepairItemHtml(machine.repairTop3[2])}
                 </div>
               </div>
             </div>
@@ -1885,16 +2044,20 @@
 
               <div style="margin: 8px 0; border-bottom: 1px dashed rgba(71,85,105,0.6);"></div>
 
-              <div class="dual-log-grid font-mono-tech">
+              <div class="dual-log-grid">
                 <div class="log-subpanel">
-                  <div class="log-subpanel-title" style="color:#fca5a5;"><span>⚠️ 當時 Alarm 狀態</span></div>
-                  <div class="log-item-line">${machine.alarmTop3[0]}</div>
-                  <div class="log-item-line">${machine.alarmTop3[1]}</div>
+                  <div class="log-subpanel-title" style="color:#fca5a5;">
+                    <span>⚠️ 當時 Alarm 狀態</span>
+                  </div>
+                  ${renderAlarmItemHtml(machine.alarmTop3[0], mStatus === 'red')}
+                  ${renderAlarmItemHtml(machine.alarmTop3[1], false)}
                 </div>
                 <div class="log-subpanel">
-                  <div class="log-subpanel-title" style="color:#67e8f9;"><span>🛠️ 開立單據紀錄</span></div>
-                  <div class="log-item-line">${machine.repairTop3[0]}</div>
-                  <div class="log-item-line">${machine.repairTop3[1]}</div>
+                  <div class="log-subpanel-title" style="color:#67e8f9;">
+                    <span>🛠️ 開立單據紀錄</span>
+                  </div>
+                  ${renderRepairItemHtml(machine.repairTop3[0])}
+                  ${renderRepairItemHtml(machine.repairTop3[1])}
                 </div>
               </div>
             </div>
